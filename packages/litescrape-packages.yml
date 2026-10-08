@@ -1,0 +1,49 @@
+generated: '2026-10-07'
+method: searched
+source:
+- https://pypi.org/pypi/litescrape-sdk/json
+- https://registry.npmjs.org/litescrape-sdk
+- https://registry.npmjs.org/litescrape-mcp-server
+- https://registry.npmjs.org/n8n-nodes-litescrape
+- https://github.com/litescrape
+note: Registry metadata read 2026-10-07. The PyPI package named `litescrape` (0.1.2, 2026-06-16, summary in Japanese "for personal use, non-general") names no author, homepage or repository and is NOT this company's; it is excluded. Every package below is published by the litescrape GitHub org (python SDK repo named in PyPI project_urls, npm repository fields point at github.com/litescrape/*).
+packages:
+- name: litescrape-sdk
+  registry: pypi
+  url: https://pypi.org/project/litescrape-sdk/
+  repo: https://github.com/litescrape/litescrape-sdk
+  language: python
+  official: true
+  version: '0.6.0'
+  published: '2026-09-23'
+  install: pip install litescrape-sdk
+  note: Validated, batched, retrying calls to search, maps and reviews endpoints; maintainer email support@litescrape.com; linked from the pricing page ("Python SDK on PyPI (litescrape-sdk)").
+- name: litescrape-sdk
+  registry: npm
+  url: https://www.npmjs.com/package/litescrape-sdk
+  repo: https://github.com/litescrape/litescrape-sdk-ts
+  language: typescript
+  official: true
+  version: '0.2.0'
+  published: '2026-09-23'
+  install: npm install litescrape-sdk
+  note: Reads LITESCRAPE_API_KEY and LITESCRAPE_API_URL (default https://api.litescrape.com); exposes scrape() and keyStatus().
+- name: litescrape-mcp-server
+  registry: npm
+  url: https://www.npmjs.com/package/litescrape-mcp-server
+  repo: https://github.com/litescrape/litescrape-mcp-server
+  language: typescript
+  official: true
+  version: '0.3.0'
+  published: '2026-09-23'
+  install: npx -y litescrape-mcp-server
+  note: MCP server over stdio or Streamable HTTP (--http); the same code runs the hosted endpoint at https://mcp.litescrape.com/mcp (README, CHANGELOG 0.2.1). Also listed in the official MCP registry as com.litescrape/litescrape-mcp-server.
+- name: n8n-nodes-litescrape
+  registry: npm
+  url: https://www.npmjs.com/package/n8n-nodes-litescrape
+  repo: https://github.com/litescrape/litescrape-n8n
+  language: typescript
+  official: true
+  version: '0.2.1'
+  published: '2026-09-19'
+  note: Community node package for n8n wrapping the Litescrape API.

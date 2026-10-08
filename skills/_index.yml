@@ -1,0 +1,16 @@
+generated: '2026-10-07'
+method: generated
+source: Packaged Agent Skills generated from openapi/litescrape-openapi.yml and the Litescrape docs; every operationId was checked against the spec.
+skills:
+- file: litescrape-google-search.md
+  name: litescrape-google-search
+  api: openapi/litescrape-openapi.yml
+  operations: [google_search]
+- file: litescrape-maps-and-reviews.md
+  name: litescrape-maps-and-reviews
+  api: openapi/litescrape-openapi.yml
+  operations: [google_maps, google_reviews, google_maps_popular_times]
+- file: litescrape-ai-answers.md
+  name: litescrape-ai-answers
+  api: openapi/litescrape-openapi.yml
+  operations: [google_ai_overview, google_ai_mode]

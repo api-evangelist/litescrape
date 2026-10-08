@@ -1,0 +1,35 @@
+generated: '2026-10-07'
+method: searched
+source:
+- https://litescrape.com/docs
+- https://litescrape.com/docs/reference
+- https://litescrape.com/terms
+- https://litescrape.com/pricing
+versioning:
+  scheme: unversioned
+  description: Paths carry no version segment (/api/google/search, /api/keys/status) and no version header is documented.
+    Maturity is signalled per endpoint on the docs index with an "Alpha" label.
+  alpha_endpoints:
+  - Google Ads
+  - Google Play Apps, Games, Books, Movies, Product, Reviews
+  - Apple App Store Search, Product, Reviews
+  - Fetch
+  - Screenshot
+  docs: https://litescrape.com/docs
+deprecation:
+  policy: null
+  description: No deprecation policy, sunset notice period or Deprecation/Sunset header is published. The Terms of Service
+    state "We may change, suspend, or discontinue any part of the Service at any time." (https://litescrape.com/terms). No
+    Deprecation pointer is warranted.
+sla:
+  published: false
+  description: '"We do not guarantee uninterrupted or error-free availability." (Terms). The pricing page offers one on request:
+    "Need dedicated throughput or an SLA? Talk to us".'
+  docs: https://litescrape.com/pricing
+status_page: null
+status_page_note: No status page is linked from the site, docs or footer (2026-10-07).
+credit_lifecycle:
+  description: '"Credits expire six months after the top-up that bought them. Calls draw down the oldest credits first" and
+    "keys issued before September 5, 2026 keep all their credits with no expiry." (pricing FAQ).'
+  docs: https://litescrape.com/pricing
+deprecated_operations: []

@@ -1,0 +1,59 @@
+generated: '2026-10-07'
+method: searched
+source:
+- https://litescrape.com/docs/key-status
+- https://litescrape.com/docs/reference
+- openapi/litescrape-openapi.yml (agents.litescrape.com storefront schemes)
+- live 401 probes of https://api.litescrape.com (2026-10-07)
+summary:
+  types:
+  - http
+  - apiKey
+  api_key_in:
+  - header
+  primary: Bearer API key (ls_live_ prefix) in the Authorization header against https://api.litescrape.com
+  storefront: The published OpenAPI describes the ZeroClick agent storefront at agents.litescrape.com, whose planAccess bearer
+    token comes from the storefront's own OAuth 2.0 token endpoint (https://agents.litescrape.com/oauth2/token, issuer https://agentauth.zeroclick.io,
+    RFC 9728 protected-resource and RFC 8414 metadata served) and whose quote operation accepts x402 / MPP payment proofs.
+    Those schemes are below as derived.
+schemes:
+- name: apiKeyBearer
+  type: http
+  scheme: bearer
+  key_prefix: ls_live_
+  header: Authorization
+  description: '"Send Authorization: Bearer YOUR_API_KEY in the request headers. Never place your key in the URL or browser
+    bundle." Missing or malformed bearer headers return 401 missing_api_key; invalid keys return 401 invalid_api_key; disabled
+    keys return 403 api_key_disabled (key-status page; 401s observed live with WWW-Authenticate: Bearer). The same key is
+    optional on the hosted MCP server (Authorization: Bearer, or ?api_key= in HTTP mode).'
+  docs: https://litescrape.com/docs/key-status
+  sources:
+  - https://litescrape.com/docs/key-status
+  - https://litescrape.com/docs/reference
+- name: planAccess
+  type: http
+  scheme: bearer
+  description: 'Plan access. Calls are sold on plans (credit or subscription), not per call: an unidentified call returns
+    401 bearer_required with a registration recipe, and an identified call with no covering plan returns 403 plan_required
+    listing the plans that cover it. Reuse your existing agent identity; register only if new (anonymous registration is one
+    free API call; the recipe is at https://agents.litescr'
+  sources:
+  - openapi/litescrape-openapi.yml
+- name: sellerAgentX402
+  type: apiKey
+  in: header
+  parameter: Payment-Signature
+  description: Signed $0 x402 proof from the 402 challenge
+  sources:
+  - openapi/litescrape-openapi.yml
+- name: sellerAgentMpp
+  type: http
+  scheme: Payment
+  description: Signed $0 MPP proof from the 402 challenge
+  sources:
+  - openapi/litescrape-openapi.yml
+docs: https://litescrape.com/docs/key-status
+key_management:
+  issue: Get your API key at https://litescrape.com (5 free calls on a new visitor key; one free key per browser, 409 otherwise)
+  status: GET /api/keys/status returns remaining_calls, concurrency_limit, status, zdr_enabled, zdr_available
+  settings: 'PATCH /api/keys/zdr {"zdr_enabled": true|false} for keys with a paid top-up'

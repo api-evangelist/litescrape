@@ -1,0 +1,51 @@
+generated: '2026-10-07'
+method: searched
+source: https://litescrape.com/pricing
+name: Litescrape API rate limits
+description: Litescrape publishes no hourly, daily or monthly request caps for keyed use; the one documented limit is per-key
+  concurrency, readable at runtime from GET /api/keys/status. The hosted MCP server's keyless tools carry a per-network daily
+  allowance.
+docs:
+- https://litescrape.com/pricing
+- https://litescrape.com/docs/key-status
+- https://litescrape.com/docs/mcp
+limits:
+- name: Concurrent requests per key
+  limit_text: The one limit is 25 requests at a time per key.
+  max: 25
+  scope: per-key
+  kind: concurrency
+  endpoint: all endpoints sharing the key
+  note: '"Each key can run 25 requests concurrently. Email support to have the limit raised." (pricing FAQ). The configured
+    value is returned as concurrency_limit by GET /api/keys/status ("Use this value to size your client concurrency").'
+headers:
+  documented: []
+  note: No X-RateLimit-*, RateLimit or Retry-After headers are documented for 429; Retry-After is documented on 503 "when
+    retryable is true". None were observed on live 401 responses (2026-10-07).
+exhaustion_status: 429
+exhaustion_error_code: concurrency
+limit_count: 1
+mcp_keyless_allowance:
+  source: https://litescrape.com/docs/reference
+  note: Allowances of the hosted MCP server (mcp.litescrape.com) when no API key is sent; they are not limits of the keyed
+    REST API and are also recorded in mcp/litescrape-mcp.yml and sandbox/litescrape-sandbox.yml. Quotes are from the MCP server
+    section of the reference page and the server's own initialize instructions.
+  allowances:
+  - name: Keyless MCP allowance, google_search and search
+    limit_text: 25 calls per network per UTC day
+    max: 25
+    window: 1 day
+    scope: per-network
+    plan: keyless (no API key)
+    endpoint: google_search
+    source: https://litescrape.com/docs/reference
+    note: MCP server section of the reference; "One call at a time per network. Failed calls do not count. Limits reset at
+      00:00 UTC."
+  - name: Keyless MCP allowance, bing_search, duckduckgo_search and google_maps
+    limit_text: 50 calls each per network per UTC day
+    max: 50
+    window: 1 day
+    scope: per-network
+    plan: keyless (no API key)
+    endpoint: bing_search, duckduckgo_search, google_maps
+    source: https://litescrape.com/docs/reference

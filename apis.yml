@@ -1,23 +1,240 @@
 aid: litescrape
+
 name: Litescrape
-description: 'Litescrape is a company surfaced via the API Evangelist harvest backlog (source: monid-connectors)
-  and added to the network as a stub for full-pipeline profiling.'
+
+description: Litescrape is a search-results and web-data API from Litescrape LLC (Sheridan, Wyoming) that returns structured JSON from Google
+  Search, Google AI Overview and AI Mode, Google Maps and reviews, Google Shopping, Bing, DuckDuckGo, Apple Maps, Yelp, Tripadvisor, Google Play
+  and the Apple App Store, plus a browser-rendered Fetch and Screenshot API, billed at a flat $0.15 per 1,000 requests on prepaid credits with
+  no subscription. It ships Python and TypeScript SDKs, an n8n node, a hosted MCP server at mcp.litescrape.com with a free keyless allowance,
+  and a ZeroClick agent storefront at agents.litescrape.com that publishes its OpenAPI.
+
+image: https://litescrape.com/litescrape-og.png
+
 url: https://raw.githubusercontent.com/api-evangelist/litescrape/refs/heads/main/apis.yml
+
 x-type: company
+
 x-source: harvest:monid-connectors
-x-tier: stub
-x-tier-reason: harvest
+
+x-tier: profiled
+
+x-tier-reason: enrichment pass 2026-10-07 (local-v5; was harvest)
+
 specificationVersion: '0.20'
+
 created: '2026-10-07'
+
 modified: '2026-10-07'
+
 tags:
 - Company
-apis: []
+- SERP API
+- Web Scraping
+- Search
+- Google Maps
+- Reviews
+- Web Data
+- MCP
+
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+
 common:
+- type: AgenticAccess
+  url: agentic-access/litescrape-agentic-access.yml
+- type: RateLimits
+  url: rate-limits/litescrape-rate-limits.yml
+- type: Plans
+  url: plans/litescrape-plans-pricing.yml
+- type: Spectral
+  url: rules/litescrape-rules.yml
+- type: JSONLD
+  url: json-ld/litescrape-context.jsonld
+- type: Vocabulary
+  url: vocabulary/litescrape-vocabulary.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: DataModel
+  url: data-model/litescrape-data-model.yml
+- type: ChangeLog
+  url: changelog/litescrape-changelog.yml
+- type: Conventions
+  url: conventions/litescrape-conventions.yml
+- type: Security
+  url: https://github.com/litescrape/litescrape-mcp-server/blob/main/SECURITY.md
+- type: VulnerabilityDisclosure
+  url: security/litescrape-vulnerability-disclosure.yml
+- type: Authentication
+  url: authentication/litescrape-authentication.yml
+- type: Deprecation
+  url: https://litescrape.com/terms
+- type: Lifecycle
+  url: lifecycle/litescrape-lifecycle.yml
+- type: ErrorCatalog
+  url: errors/litescrape-problem-types.yml
+- type: Conformance
+  url: conformance/litescrape-conformance.yml
+- type: Overlay
+  url: overlays/litescrape-openapi-overlay.yaml
+- type: LLMsTxt
+  url: llms/litescrape-llms.txt
+- type: ToolCrosswalk
+  url: mcp/litescrape-tool-crosswalk.yml
+- type: MCPServer
+  url: mcp/litescrape-mcp.yml
+- type: WellKnown
+  url: well-known/litescrape-well-known.yml
+- type: Hosts
+  url: hosts/litescrape-hosts.yml
+- type: Vendors
+  url: vendors/litescrape-vendors.yml
+- type: SDKs
+  url: packages/litescrape-packages.yml
+- type: Packages
+  url: packages/litescrape-packages.yml
+- type: DomainSecurity
+  url: security/litescrape-domain-security.yml
 - type: Website
   url: https://litescrape.com
+- type: Documentation
+  url: https://litescrape.com/docs
+- type: APIReference
+  url: https://litescrape.com/docs/reference
+- type: Blog
+  url: https://litescrape.com/blog
+- type: Pricing
+  url: https://litescrape.com/pricing
+- type: Playground
+  url: https://litescrape.com/playground
+- type: PrivacyPolicy
+  url: https://litescrape.com/privacy
+- type: TermsOfService
+  url: https://litescrape.com/terms
+- type: GitHubOrganization
+  url: https://github.com/litescrape
+
+apis:
+- name: Litescrape MCP Server
+  description: >-
+    Hosted Model Context Protocol server (Streamable HTTP, protocol 2025-06-18) exposing ten search, maps,
+    reviews and web-fetch tools backed by the Litescrape API; google_search, bing_search, duckduckgo_search
+    and google_maps work without a key under a daily per-network allowance, and an Authorization Bearer
+    API key unlocks the rest. The same server ships as the npm package litescrape-mcp-server for local
+    stdio use.
+  humanURL: https://litescrape.com/docs/mcp
+  baseURL: https://mcp.litescrape.com/mcp
+  tags:
+  - MCP
+  - Search
+  properties:
+  - type: Documentation
+    url: https://litescrape.com/docs/mcp
+  - type: SourceCode
+    url: https://github.com/litescrape/litescrape-mcp-server
+  aid: litescrape:litescrape-mcp-server
+- aid: litescrape:litescrape-apple-api
+  name: Litescrape Apple API
+  description: The Apple API from Litescrape — 2 operation(s) for apple.
+  humanURL: https://litescrape.com/docs/reference
+  baseURL: https://api.litescrape.com
+  tags:
+  - Apple
+  properties:
+  - type: OpenAPI
+    url: openapi/litescrape-apple-api-openapi.yml
+  - type: Documentation
+    url: https://litescrape.com/docs
+  - type: APIReference
+    url: https://litescrape.com/docs/reference
+- aid: litescrape:litescrape-bing-api
+  name: Litescrape Bing API
+  description: The Bing API from Litescrape — 2 operation(s) for bing.
+  humanURL: https://litescrape.com/docs/reference
+  baseURL: https://api.litescrape.com
+  tags:
+  - Bing
+  properties:
+  - type: OpenAPI
+    url: openapi/litescrape-bing-api-openapi.yml
+  - type: Documentation
+    url: https://litescrape.com/docs
+  - type: APIReference
+    url: https://litescrape.com/docs/reference
+- aid: litescrape:litescrape-duckduckgo-api
+  name: Litescrape Duckduckgo API
+  description: The Duckduckgo API from Litescrape — 2 operation(s) for duckduckgo.
+  humanURL: https://litescrape.com/docs/reference
+  baseURL: https://api.litescrape.com
+  tags:
+  - Duckduckgo
+  properties:
+  - type: OpenAPI
+    url: openapi/litescrape-duckduckgo-api-openapi.yml
+  - type: Documentation
+    url: https://litescrape.com/docs
+  - type: APIReference
+    url: https://litescrape.com/docs/reference
+- aid: litescrape:litescrape-google-api
+  name: Litescrape Google API
+  description: The Google API from Litescrape — 11 operation(s) for google.
+  humanURL: https://litescrape.com/docs/reference
+  baseURL: https://api.litescrape.com
+  tags:
+  - Google
+  properties:
+  - type: OpenAPI
+    url: openapi/litescrape-google-api-openapi.yml
+  - type: Documentation
+    url: https://litescrape.com/docs
+  - type: APIReference
+    url: https://litescrape.com/docs/reference
+- aid: litescrape:litescrape-tripadvisor-api
+  name: Litescrape Tripadvisor API
+  description: The Tripadvisor API from Litescrape — 3 operation(s) for tripadvisor.
+  humanURL: https://litescrape.com/docs/reference
+  baseURL: https://api.litescrape.com
+  tags:
+  - Tripadvisor
+  properties:
+  - type: OpenAPI
+    url: openapi/litescrape-tripadvisor-api-openapi.yml
+  - type: Documentation
+    url: https://litescrape.com/docs
+  - type: APIReference
+    url: https://litescrape.com/docs/reference
+- aid: litescrape:litescrape-yelp-api
+  name: Litescrape Yelp API
+  description: The Yelp API from Litescrape — 2 operation(s) for yelp.
+  humanURL: https://litescrape.com/docs/reference
+  baseURL: https://api.litescrape.com
+  tags:
+  - Yelp
+  properties:
+  - type: OpenAPI
+    url: openapi/litescrape-yelp-api-openapi.yml
+  - type: Documentation
+    url: https://litescrape.com/docs
+  - type: APIReference
+    url: https://litescrape.com/docs/reference
+- aid: litescrape:litescrape-zeroclick-api
+  name: Litescrape Zeroclick API
+  description: The Zeroclick API from Litescrape — 1 operation(s) for zeroclick.
+  humanURL: https://litescrape.com/docs/reference
+  baseURL: https://api.litescrape.com
+  tags:
+  - Zeroclick
+  properties:
+  - type: OpenAPI
+    url: openapi/litescrape-zeroclick-api-openapi.yml
+  - type: Documentation
+    url: https://litescrape.com/docs
+  - type: APIReference
+    url: https://litescrape.com/docs/reference
+x-enrichment:
+  date: '2026-10-07'
+  status: enriched
+  artifacts_added: 33
+  pass: local-v5

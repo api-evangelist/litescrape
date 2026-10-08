@@ -1,0 +1,189 @@
+openapi: 3.2.0
+info:
+  title: Litescrape Zeroclick API
+  version: 1.0.0
+  x-guidance: 'Start with the free seller advisor: POST https://agents.litescrape.com/zeroclick/agent/quote with your goal and known budget or requirements. This operation costs $0 and requires only an x402 or MPP wallet proof; it returns a guide and never executes a purchase. Without a wallet, GET https://agents.litescrape.com/zeroclick/agent/guide?goal=URL_ENCODED_TASK or POST to that guide. Other operations below are the direct API reference; their own prices and access requirements still apply. Call the operations listed in this document at https://agents.litescrape.com. Each service''s full price matrix, plans, and how to buy are at https://agents.litescrape.com/services/{slug}; each operation''s x-payment-info names the service it bills by slug (rates[].service). Slugs identify services in prices and usage reports and are never request values: when one operation serves several services, its request body schema lists the accepted values of the field that selects the service, so send one of those exactly as written. Calls here are sold on plans, not per call: an unidentified call returns 401 bearer_required with a registration recipe, never a per-call 402. Reuse your existing agent identity; register only if new (anonymous registration is one free API call; the recipe is at https://agents.litescrape.com/auth.md), buy a plan at POST https://agents.litescrape.com/plans/{planId}/purchase (its priced 402 settles with a supported payment method - x402 (Base USDC) or MPP (Tempo USDC) today - or by card), then retry with Authorization: Bearer <token>. No upstream API key is needed. Read GET https://agents.litescrape.com/manifest.json for the live services, meters, plans, and prices, and https://agents.litescrape.com/llms-full.txt for the full agent guide.'
+  description: 'Operations tagged Zeroclick across 2 of this provider''s published API definitions: litescrape-agents-openapi.json, litescrape-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://agents.litescrape.com
+  description: Plan-based access to Litescrape's API
+security:
+- planAccess: []
+tags:
+- name: Zeroclick
+paths:
+  /zeroclick/agent/quote:
+    post:
+      operationId: sellerAgentQuote
+      summary: Get a free seller API quote and purchase guide
+      description: Describe your task to get the matching API contract, prices, prerequisites and next steps. This is a $0 wallet-proof lookup, not the seller's paid service. No purchase is executed. Without a wallet, use /zeroclick/agent/guide.
+      servers:
+      - url: https://agents.litescrape.com
+      security:
+      - sellerAgentX402: []
+      - sellerAgentMpp: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $schema: https://json-schema.org/draft/2020-12/schema
+              type: object
+              properties:
+                goal:
+                  type: string
+                  minLength: 1
+                  maxLength: 2000
+                  description: Describe the task and known inputs. Do not include credentials.
+                quantity:
+                  description: Number of API calls, not returned items. Omit when unknown; describe desired output in goal.
+                  type: integer
+                  minimum: 1
+                  maximum: 1000000
+                budgetUsd:
+                  description: Total cash budget in USD. A quote does not authorize spending.
+                  type: string
+                  pattern: ^(0|[1-9]\d{0,8})(\.\d{1,6})?$
+                budgetExclusive:
+                  type: boolean
+                reviewAfterCalls:
+                  type: integer
+                  minimum: 1
+                  maximum: 1000000
+                requirements:
+                  type: string
+                  minLength: 1
+                  maxLength: 300
+                humanAvailable:
+                  description: Whether a human is in the loop. False recommends anonymous auth for a new autonomous identity; omit when unknown. Executing a human's request without further interruptions does not by itself mean false.
+                  type: boolean
+                payment:
+                  description: Known payment method for the eventual purchase, independent of this free lookup's wallet proof.
+                  type: string
+                  enum:
+                  - x402
+                  - mpp
+                  - card
+              required:
+              - goal
+              additionalProperties: false
+            example:
+              goal: Find the available services, prices and purchase steps
+      responses:
+        '200':
+          description: Task guidance; inspect status before executing anything
+          content:
+            application/json:
+              schema:
+                $schema: https://json-schema.org/draft/2020-12/schema
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - quoted
+                    - ready
+                    - needs_input
+                    - blocked
+                    - unknown
+                    - unsupported
+                    - unavailable
+                  priceUsd:
+                    type: string
+                    const: '0'
+                  guide:
+                    type: string
+                    description: Markdown guidance containing the task result, exact contract, pricing and next steps when available. No purchase is executed.
+                  guideUrl:
+                    type: string
+                    format: uri
+                    description: Wallet-free advisor endpoint for further planning or recovery.
+                required:
+                - status
+                - priceUsd
+                - guide
+                - guideUrl
+                additionalProperties: false
+        '402':
+          description: $0 x402 or MPP wallet proof required; sign and retry the same request. No funds are transferred.
+        '503':
+          description: Advisor unavailable; use the wallet-free guide or direct storefront references
+      x-payment-info:
+        access: payg
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0'
+        protocols:
+        - x402:
+            network: eip155:8453
+            scheme: exact
+            currency: USDC
+        - mpp:
+            method: tempo
+            intent: charge
+            currency: USD
+        offers:
+        - amount: '0'
+          currency: '0x20C000000000000000000000b9537d11c60E8b50'
+          method: tempo
+          intent: charge
+          description: Free seller advisor lookup
+      tags:
+      - Zeroclick
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+components:
+  securitySchemes:
+    planAccess:
+      type: http
+      scheme: bearer
+      description: 'Plan access. Calls are sold on plans (credit or subscription), not per call: an unidentified call returns 401 bearer_required with a registration recipe, and an identified call with no covering plan returns 403 plan_required listing the plans that cover it. Reuse your existing agent identity; register only if new (anonymous registration is one free API call; the recipe is at https://agents.litescrape.com/auth.md), buy a plan at POST https://agents.litescrape.com/plans/{planId}/purchase (its priced 402 settles with a supported payment method - x402 or MPP today - or by card), then retry with the access token as Authorization: Bearer <token>. No upstream API key is needed.'
+    sellerAgentX402:
+      type: apiKey
+      in: header
+      name: Payment-Signature
+      description: Signed $0 x402 proof from the 402 challenge
+    sellerAgentMpp:
+      type: http
+      scheme: Payment
+      description: Signed $0 MPP proof from the 402 challenge
+externalDocs:
+  url: https://agents.litescrape.com/llms-full.txt
+  description: How to authenticate, pay, and call this API; links the upstream API reference.
+x-refined-from:
+- litescrape-agents-openapi.json
+- litescrape-openapi.yml
+x-zeroclick-navigation:
+  fullSpec: https://agents.litescrape.com/openapi.json
+  services: https://agents.litescrape.com/services
+  serviceSpecTemplate: https://agents.litescrape.com/services/{slug}/openapi.json
+  searchTemplate: https://agents.litescrape.com/openapi.json?q={text}
+  operationTemplate: https://agents.litescrape.com/openapi.json?path={path}&method={method}
+  firstPage: https://agents.litescrape.com/openapi.json?page=1
+  instructions:
+  - Use this spec if it contains the operation and details you need. Otherwise, search or open a relevant service spec using the links below.
+  - Find service slugs in x-zeroclick-services or x-payment-info.rates[].service; use them in serviceSpecTemplate, never as request values.
+  - URL-encode template values. Search is ranked; service, path, and method filters are exact. Filters combine.
+  - Pages contain up to 10 operations; follow info.x-next or the Link header if you need more results. Shared operations retain all selector values.
+x-service-info:
+  categories:
+  - search
+  - web
+  docs:
+    homepage: https://litescrape.com
+    apiReference: https://agents.litescrape.com/openapi.json
+    llms: https://agents.litescrape.com/llms.txt
+x-zeroclick-navigation-footer:
+  instructions:
+  - Use this spec if it contains the operation and details you need. Otherwise, search or open a relevant service spec using the links below.
+  - Find service slugs in x-zeroclick-services or x-payment-info.rates[].service; use them in serviceSpecTemplate, never as request values.
+  - URL-encode template values. Search is ranked; service, path, and method filters are exact. Filters combine.
+  - Pages contain up to 10 operations; follow info.x-next or the Link header if you need more results. Shared operations retain all selector values.
+  fullSpec: https://agents.litescrape.com/openapi.json
+  services: https://agents.litescrape.com/services
+  serviceSpecTemplate: https://agents.litescrape.com/services/{slug}/openapi.json
+  searchTemplate: https://agents.litescrape.com/openapi.json?q={text}
+  operationTemplate: https://agents.litescrape.com/openapi.json?path={path}&method={method}
+  firstPage: https://agents.litescrape.com/openapi.json?page=1

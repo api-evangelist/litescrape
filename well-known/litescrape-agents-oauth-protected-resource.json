@@ -1,0 +1,1 @@
+{"resource":"https://agents.litescrape.com/","resource_name":"Litescrape","resource_logo_uri":"https://litescrape.com/icon.png","authorization_servers":["https://agents.litescrape.com","https://agentauth.zeroclick.io"],"bearer_methods_supported":["header"],"zeroclick_agent_authorization":{"scheme":"Bearer","header":"ZC-Agent-Authorization","use_when":"authorization_reserved"}}

@@ -1,0 +1,286 @@
+generated: '2026-10-07'
+method: probed
+status: official
+source:
+- https://mcp.litescrape.com/mcp (POST tools/list and initialize, unauthenticated, 2026-10-07)
+- https://litescrape.com/docs/mcp
+- https://github.com/litescrape/litescrape-mcp-server
+- https://registry.modelcontextprotocol.io/v0/servers?search=litescrape
+name: Litescrape MCP Server
+description: Official Litescrape MCP server. The hosted Streamable HTTP endpoint answered an unauthenticated initialize (serverInfo
+  litescrape-mcp-server 0.3.0, protocolVersion 2025-06-18, capabilities.tools.listChanged) and tools/list with ten tools;
+  the tool list below is the live response saved verbatim in mcp/litescrape-mcp-tools-list.json. The same server is published
+  to npm as litescrape-mcp-server for stdio use and listed in the official MCP registry as com.litescrape/litescrape-mcp-server
+  with a streamable-http remote of https://mcp.litescrape.com/mcp.
+deployment:
+  mode: both
+  endpoint: https://mcp.litescrape.com/mcp
+  transport: streamable-http
+  install: npx -y litescrape-mcp-server
+  package: https://www.npmjs.com/package/litescrape-mcp-server
+  auth: api-key
+  auth_note: 'Optional. Without a key google_search/search (25 calls), bing_search, duckduckgo_search and google_maps (50
+    each) are free per network per UTC day, one call at a time; "Authorization: Bearer ls_live_..." unlocks google_ai_mode,
+    google_ai_overview, google_shopping, google_reviews and web_fetch, removes the daily limits and allows concurrent calls
+    (server initialize instructions; docs/mcp; README). No OAuth: /.well-known/oauth-protected-resource on mcp.litescrape.com
+    returns 404.'
+  verified: probed
+server:
+  name: litescrape-mcp-server
+  version: 0.3.0
+  protocol_version: '2025-06-18'
+  capabilities:
+    tools:
+      listChanged: true
+  upstream_api: https://api.litescrape.com
+  registry_id: com.litescrape/litescrape-mcp-server
+  client_setup: claude mcp add --transport http litescrape https://mcp.litescrape.com/mcp
+auth:
+  type: api-key
+  header: 'Authorization: Bearer <ls_live_ key>'
+  required: false
+tools:
+- name: search
+  title: Web search
+  description: 'Search the web through Google and return ranked organic results (title, link, snippet) as JSON. Fast mode:
+    no Knowledge Graph, ads or AI modules; use google_search for the full results page. Free without an API key (shares the
+    google_search allowance).'
+  required:
+  - q
+  parameters:
+  - q
+  - gl
+  - hl
+  - location
+  - num
+  - start
+  - result_groups
+  requires_api_key: false
+  input_schema: mcp/litescrape-mcp-tools-list.json
+- name: google_search
+  title: Google Search
+  description: 'Fetch a first-party Google Search results page as JSON: organic_results plus whichever modules Google served
+    (knowledge_graph, answer_box, ai_overview, ads, related_questions, related_searches, local_results, top_stories, inline_videos
+    and more). Supports localization, verticals (news, videos, local, shopping, patents), date filters and site restriction.
+    Free without an API key: 25 calls per network per day.'
+  required: []
+  parameters:
+  - q
+  - ludocid
+  - kgmid
+  - location
+  - uule
+  - lat
+  - lon
+  - radius
+  - google_domain
+  - gl
+  - hl
+  - cr
+  - lr
+  - tbs
+  - tbm
+  - safe
+  - nfpr
+  - filter
+  - as_sitesearch
+  - as_qdr
+  - start
+  - num
+  - device
+  - fast_mode
+  - result_groups
+  requires_api_key: false
+  input_schema: mcp/litescrape-mcp-tools-list.json
+- name: bing_search
+  title: Bing Search
+  description: 'Fetch a Bing web search results page as JSON: organic_results plus the modules Bing served (answer_box, knowledge_graph,
+    copilot_answer, ads, related_questions, inline_videos, top_stories and more). Free without an API key: 50 calls per network
+    per day.'
+  required:
+  - q
+  parameters:
+  - q
+  - location
+  - lat
+  - lon
+  - mkt
+  - cc
+  - first
+  - safeSearch
+  - filters
+  - device
+  - result_groups
+  requires_api_key: false
+  input_schema: mcp/litescrape-mcp-tools-list.json
+- name: duckduckgo_search
+  title: DuckDuckGo Search
+  description: 'Fetch ranked DuckDuckGo web results (organic_results with title, link, snippet) with region, safety and date
+    controls. Free without an API key: 50 calls per network per day.'
+  required:
+  - q
+  parameters:
+  - q
+  - kl
+  - search_assist
+  - safe
+  - df
+  - start
+  - m
+  - result_groups
+  requires_api_key: false
+  input_schema: mcp/litescrape-mcp-tools-list.json
+- name: google_maps
+  title: Google Maps
+  description: 'Search Google Maps for places (local_results with name, address, rating, reviews, hours, phone, website, coordinates)
+    or fetch one exact place (place_results) by place_id, data_cid or data sequence. Filter by price, rating and opening hours.
+    Free without an API key: 50 calls per network per day.'
+  required: []
+  parameters:
+  - q
+  - type
+  - ll
+  - location
+  - lat
+  - lon
+  - z
+  - m
+  - nearby
+  - place_id
+  - data_cid
+  - data
+  - start
+  - hl
+  - gl
+  - google_domain
+  - min_price
+  - max_price
+  - min_rating
+  - open_state
+  - open_on_day
+  - open_at_hour
+  - result_groups
+  requires_api_key: false
+  input_schema: mcp/litescrape-mcp-tools-list.json
+- name: google_ai_overview
+  title: Google AI Overview
+  description: Return only the AI Overview Google generates for a search (ai_overview with ordered text_blocks and cited references),
+    or null when Google shows none. Accepts the google_search parameters. Requires an API key.
+  required: []
+  parameters:
+  - q
+  - ludocid
+  - kgmid
+  - location
+  - uule
+  - lat
+  - lon
+  - radius
+  - google_domain
+  - gl
+  - hl
+  - cr
+  - lr
+  - tbs
+  - tbm
+  - safe
+  - nfpr
+  - filter
+  - as_sitesearch
+  - as_qdr
+  - start
+  - num
+  - device
+  - result_groups
+  requires_api_key: true
+  input_schema: mcp/litescrape-mcp-tools-list.json
+- name: google_ai_mode
+  title: Google AI Mode
+  description: 'Ask Google AI Mode a question and return its generated answer (ordered text_blocks: paragraphs, headings,
+    lists, tables, code) with the sources it cited (references). Set continuable to get a token for follow-up questions; image_url
+    adds a picture to the prompt. Slow: answers are generated per request. Requires an API key.'
+  required:
+  - q
+  parameters:
+  - q
+  - location
+  - uule
+  - google_domain
+  - gl
+  - hl
+  - device
+  - continuable
+  - subsequent_request_token
+  - image_url
+  - result_groups
+  requires_api_key: true
+  input_schema: mcp/litescrape-mcp-tools-list.json
+- name: google_shopping
+  title: Google Shopping
+  description: Search Google Shopping and return the product grid (shopping_results with title, price, source, rating, thumbnail),
+    category blocks, sponsored listings and the refinement chips Google renders (filters). Price bounds, sale, shipping and
+    small business refinements are mutually exclusive; sort_by combines with one of them. Requires an API key.
+  required: []
+  parameters:
+  - q
+  - location
+  - uule
+  - google_domain
+  - gl
+  - hl
+  - shoprs
+  - min_price
+  - max_price
+  - sort_by
+  - free_shipping
+  - on_sale
+  - small_business
+  - start
+  - num
+  - device
+  - result_groups
+  requires_api_key: true
+  input_schema: mcp/litescrape-mcp-tools-list.json
+- name: google_reviews
+  title: Google Reviews
+  description: Return the Google Maps reviews of one place (reviews with rating, snippet, author, date, likes, owner response,
+    guided details and dining subratings) plus place_info. Identify the place by place_id or data_id from a google_maps result.
+    Sort, filter by topic or text, and follow pagination.next_page_token for more. Requires an API key.
+  required: []
+  parameters:
+  - place_id
+  - data_id
+  - hl
+  - gl
+  - sort_by
+  - topic_id
+  - query
+  - num
+  - next_page_token
+  - result_groups
+  requires_api_key: true
+  input_schema: mcp/litescrape-mcp-tools-list.json
+- name: web_fetch
+  title: Fetch a web page
+  description: Render one public web page in a fresh browser and return it as Markdown (default), HTML, plain text or a full-page
+    PNG screenshot encoded as base64, with url, title, content and the status_code the site returned. Narrow the content with
+    target_selector or remove_selector. Alpha. Requires an API key.
+  required:
+  - url
+  parameters:
+  - url
+  - respond_with
+  - target_selector
+  - remove_selector
+  - wait_for_selector
+  - wait_until
+  - page_timeout
+  - locale
+  - user_agent
+  - with_links
+  - with_images
+  - with_iframe
+  - with_shadow_dom
+  requires_api_key: true
+  input_schema: mcp/litescrape-mcp-tools-list.json
+tool_count: 10

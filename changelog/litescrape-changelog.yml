@@ -1,0 +1,48 @@
+generated: '2026-10-07'
+method: searched
+source: https://github.com/litescrape/litescrape-mcp-server/blob/main/CHANGELOG.md (raw read 2026-10-07)
+url: https://github.com/litescrape/litescrape-mcp-server/blob/main/CHANGELOG.md
+docs: https://litescrape.com/docs/mcp
+scheme: semver (MCP server package)
+current_version: 0.3.0
+note: 'The only dated changelog Litescrape publishes is the MCP server''s (Keep-a-Changelog format, npm litescrape-mcp-server).
+  The REST API itself has no versioned changelog page; its blog carries migration guides (Serper.dev, Google Custom Search
+  JSON API) rather than dated release notes, and endpoint maturity is signalled by "Alpha" labels on the docs index. No entry
+  is marked breaking by the provider; breaking: false records that absence, not a judgement.'
+entries:
+- version: 0.3.0
+  date: '2026-09-22'
+  breaking: false
+  highlights:
+  - 'Added: `web_fetch`: one public web page rendered in a fresh browser, returned as Markdown (default), HTML, plain text
+    or a base64 PNG screenshot, with the status code the site returned. Supports target and remove selectors, wai'
+  - 'Changed: `num` on `search` and `google_search` accepts 1 to 10, the most Google returns on one page. Use `start` to page
+    further.'
+- version: 0.2.1
+  date: '2026-09-15'
+  breaking: false
+  highlights:
+  - 'Changed: HTTP mode behind Cloudflare: with `LITESCRAPE_EDGE_SECRET` set, the caller forwarded to the API is `CF-Connecting-IP`
+    from requests that carry the secret Cloudflare''s transform rule adds, and nothing is forwarded for a r'
+- version: 0.2.0
+  date: '2026-09-15'
+  breaking: false
+  highlights:
+  - 'Added: `google_reviews`: the Google Maps reviews of one place by `place_id` or `data_id`, with sorting, topic and text
+    filters and `next_page_token` pagination. Needs an API key.'
+  - 'Added: Streamable HTTP mode: `litescrape-mcp-server --http` (or `LITESCRAPE_MCP_TRANSPORT=http`) serves stateless MCP
+    on `POST /mcp` with a `/healthz` check. The API key comes from each request''s `Authorization: Bearer` header '
+  - 'Added: `LITESCRAPE_KEYLESS_PROXY_SECRET`: in HTTP mode, forwards each caller''s address to the API under the secret shared
+    with it, so the free allowance is metered per caller rather than per hosted server.'
+- version: 0.1.1
+  date: '2026-09-15'
+  breaking: false
+  highlights:
+  - 'Changed: Releases are published from GitHub Actions with an npm provenance attestation, so the package on npm can be
+    verified against this repository and its release tag. No functional changes.'
+- version: 0.1.0
+  date: '2026-09-14'
+  breaking: false
+  highlights:
+  - 'Added: First release. `npx -y litescrape-mcp-server` gives any MCP client Google Search, Bing, DuckDuckGo and Google
+    Maps results with no API key, from a free daily allowance per network, plus Google AI Mode, Google AI Overview'

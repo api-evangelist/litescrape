@@ -1,0 +1,125 @@
+generated: '2026-10-07'
+method: derived
+source:
+- mcp/litescrape-mcp-tools-list.json (live tools/list, 2026-10-07)
+- openapi/litescrape-openapi.yml (agents.litescrape.com/openapi.json)
+- https://litescrape.com/docs/reference
+purpose: Bind each live MCP tool to the OpenAPI operation that backs it so the tool inherits that operation's parameters as
+  its real input schema.
+surfaces:
+  rest_openapi: openapi/litescrape-openapi.yml
+  rest_base_documented: https://api.litescrape.com
+  rest_base_in_spec: https://agents.litescrape.com
+  mcp: https://mcp.litescrape.com/mcp
+  mcp_gated: 'partially: four tools free per network per day, the rest need a Bearer API key'
+  graphql: null
+crosswalk:
+- tool: search
+  category: search
+  rest:
+  - google_search
+  binding: rest
+  confidence: high
+  note: Documented as google_search in fast mode (organic results only, shares its allowance); same GET /api/google/search
+    operation.
+- tool: google_search
+  category: search
+  rest:
+  - google_search
+  binding: rest
+  confidence: high
+  note: Same name and parameter set as GET /api/google/search.
+- tool: bing_search
+  category: search
+  rest:
+  - bing_search
+  binding: rest
+  confidence: high
+  note: Same name and parameter set as GET /api/bing/search.
+- tool: duckduckgo_search
+  category: search
+  rest:
+  - duckduckgo_search
+  binding: rest
+  confidence: high
+  note: Same name and parameter set as GET /api/duckduckgo/search.
+- tool: google_maps
+  category: maps
+  rest:
+  - google_maps
+  binding: rest
+  confidence: high
+  note: Same name and parameter set as GET /api/google/maps.
+- tool: google_ai_overview
+  category: search
+  rest:
+  - google_ai_overview
+  binding: rest
+  confidence: high
+  note: Same name and parameter set as GET /api/google/ai-overview.
+- tool: google_ai_mode
+  category: search
+  rest:
+  - google_ai_mode
+  binding: rest
+  confidence: high
+  note: Same name and parameter set as GET /api/google/ai-mode.
+- tool: google_shopping
+  category: search
+  rest:
+  - google_shopping
+  binding: rest
+  confidence: high
+  note: Same name and parameter set as GET /api/google/shopping.
+- tool: google_reviews
+  category: maps
+  rest:
+  - google_reviews
+  binding: rest
+  confidence: high
+  note: Same name and parameter set as GET /api/google/reviews.
+mcp_only:
+- tool: web_fetch
+  category: web
+  reason: GET/POST /api/web/fetch is documented at litescrape.com/docs/web-fetch (Alpha) but is not in the published storefront
+    OpenAPI, so there is no operationId to bind.
+rest_only:
+- operation: apple_maps_places
+  path: GET /api/apple/maps/places
+- operation: apple_maps_reviews
+  path: GET /api/apple/maps/reviews
+- operation: bing_maps
+  path: GET /api/bing/maps
+- operation: duckduckgo_maps
+  path: GET /api/duckduckgo/maps
+- operation: google_contributor_reviews
+  path: GET /api/google/contributor-reviews
+- operation: google_maps_photo_meta
+  path: GET /api/google/maps/photo-meta
+- operation: google_maps_popular_times
+  path: GET /api/google/maps/popular-times
+- operation: google_maps_posts
+  path: GET /api/google/maps/posts
+- operation: google_shopping_product
+  path: GET /api/google/shopping/product
+- operation: tripadvisor_place
+  path: GET /api/tripadvisor/place
+- operation: tripadvisor_reviews
+  path: GET /api/tripadvisor/reviews
+- operation: tripadvisor_search
+  path: GET /api/tripadvisor/search
+- operation: yelp_reviews
+  path: GET /api/yelp/reviews
+- operation: yelp_search
+  path: GET /api/yelp/search
+- operation: sellerAgentQuote
+  path: POST /zeroclick/agent/quote
+coverage:
+  mcp_tools_named: 10
+  mcp_bound_to_rest: 9
+  mcp_only: 1
+  rest_operations_total: 23
+  rest_operations_with_mcp_tool: 8
+  note: search and google_search both bind to google_search. The docs reference lists about 37 REST endpoints at api.litescrape.com;
+    the published spec carries 22 of them plus the storefront quote operation, so rest_only is measured against the spec,
+    not the docs.

@@ -1,0 +1,62 @@
+generated: '2026-10-07'
+method: searched
+source:
+- https://litescrape.com/docs/reference#errors
+- https://litescrape.com/docs/key-status
+- live unauthenticated probes of https://api.litescrape.com/api/google/search and /api/keys/status (2026-10-07)
+format: application/json (custom envelope; not RFC 9457)
+envelope:
+  fields:
+    error: human-readable message
+    error_code: machine-readable snake_case code
+    status_code: HTTP status repeated in the body
+    request_id: hex request identifier (also sent as the x-request-id response header)
+    retryable: boolean retry guidance
+    search_parameters: echo of the parsed request, on request errors
+  example: '{"error":"Send the API key as Authorization: Bearer <key>.","error_code":"missing_api_key","status_code":401,"request_id":"7eee660986712e2a4c4da97d","retryable":false}'
+  guidance: '"Every JSON error includes a machine-readable code, request ID, and retry guidance. Fix 400-level request errors before retrying."'
+problems:
+- status: 400
+  title: Invalid parameter contract
+  type: invalid_request
+  description: 'e.g. "q is required when type=search"; the Fetch API also returns fetch_request_rejected at 400.'
+  remediation: Correct the request parameters before retrying; the body echoes search_parameters.
+- status: 401
+  title: Missing or invalid API key
+  type: missing_api_key | invalid_api_key
+  description: Missing or malformed bearer headers return missing_api_key (observed live, with WWW-Authenticate Bearer); invalid keys return invalid_api_key (observed live).
+  remediation: Send Authorization Bearer <ls_live_ key>.
+- status: 402
+  title: Key needs a one-time Stripe top-up
+  type: balance
+  description: remaining_calls is exhausted.
+  remediation: Top up the key at litescrape.com (minimum $10); check GET /api/keys/status.
+- status: 403
+  title: Disabled key or unknown parameter
+  type: api_key_disabled
+  description: Disabled keys return 403 api_key_disabled; an unknown parameter is also a 403.
+  remediation: Use an active key and only documented parameters.
+- status: 404
+  title: Requested result, place, or route not found
+  type: not_found
+- status: 409
+  title: This browser already received a free key
+  type: conflict
+  description: Free visitor-key issuance is once per browser.
+- status: 422
+  title: Validation error
+  type: validation_error
+  description: Documented for the Fetch and Screenshot (Alpha) endpoints.
+- status: 429
+  title: Free-key or request rate exceeded
+  type: concurrency
+  description: The per-key concurrency limit (25 by default) or the free-key allowance was exceeded.
+  remediation: Keep in-flight requests at or below concurrency_limit from GET /api/keys/status; retry later.
+- status: 500
+  title: Unexpected API failure
+  type: internal_error
+- status: 503
+  title: Temporarily unavailable
+  type: service_unavailable | request_deadline_exceeded
+  description: '"retry after Retry-After when retryable is true".'
+  remediation: Honour Retry-After; failed calls are not billed.

@@ -1,0 +1,15 @@
+generated: '2026-10-07'
+method: derived
+generator: derive-vocabulary.py
+source: openapi/litescrape-openapi.yml
+vocabulary:
+  name: Litescrape Domain Vocabulary
+  description: 'Terms declared by Litescrape''s own API contract: its resource groups, objects and enumerations, with the contract''s definitions.
+    Derived, not authored.'
+  version: '2026-10-07'
+  terms:
+  - term: sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0
+    definition: 'Object declared by the contract with fields: error, retryable, error_code, request_id, status_code, search_parameters.'
+    tags:
+    - Object
+    source: openapi/litescrape-openapi.yml#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0

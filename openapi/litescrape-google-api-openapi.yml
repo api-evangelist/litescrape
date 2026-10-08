@@ -1,0 +1,4209 @@
+openapi: 3.2.0
+info:
+  title: Litescrape Google API
+  version: 1.0.0
+  x-guidance: 'Start with the free seller advisor: POST https://agents.litescrape.com/zeroclick/agent/quote with your goal and known budget or requirements. This operation costs $0 and requires only an x402 or MPP wallet proof; it returns a guide and never executes a purchase. Without a wallet, GET https://agents.litescrape.com/zeroclick/agent/guide?goal=URL_ENCODED_TASK or POST to that guide. Other operations below are the direct API reference; their own prices and access requirements still apply. Call the operations listed in this document at https://agents.litescrape.com. Each service''s full price matrix, plans, and how to buy are at https://agents.litescrape.com/services/{slug}; each operation''s x-payment-info names the service it bills by slug (rates[].service). Slugs identify services in prices and usage reports and are never request values: when one operation serves several services, its request body schema lists the accepted values of the field that selects the service, so send one of those exactly as written. Calls here are sold on plans, not per call: an unidentified call returns 401 bearer_required with a registration recipe, never a per-call 402. Reuse your existing agent identity; register only if new (anonymous registration is one free API call; the recipe is at https://agents.litescrape.com/auth.md), buy a plan at POST https://agents.litescrape.com/plans/{planId}/purchase (its priced 402 settles with a supported payment method - x402 (Base USDC) or MPP (Tempo USDC) today - or by card), then retry with Authorization: Bearer <token>. No upstream API key is needed. Read GET https://agents.litescrape.com/manifest.json for the live services, meters, plans, and prices, and https://agents.litescrape.com/llms-full.txt for the full agent guide.'
+  description: 'Operations tagged Google across 2 of this provider''s published API definitions: litescrape-agents-openapi.json, litescrape-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://agents.litescrape.com
+  description: Plan-based access to Litescrape's API
+security:
+- planAccess: []
+tags:
+- name: Google
+paths:
+  /api/google/ai-mode:
+    get:
+      summary: Google AI Mode
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Ai Mode
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: q
+        schema:
+          type: string
+          examples:
+          - what is the best espresso machine for a small kitchen
+          maxLength: 2048
+        example: what is the best espresso machine for a small kitchen
+        required: true
+        description: Question to ask, up to 2,048 characters. Required on every turn, including follow-ups.
+      - in: query
+        name: continuable
+        schema:
+          type: boolean
+          default: false
+        required: false
+        description: Return a subsequent_request_token so this answer can be followed up, when Google offers a continuation.
+      - in: query
+        name: subsequent_request_token
+        schema:
+          type: string
+          pattern: ^ai1\.
+          maxLength: 128
+        required: false
+        description: Token from a previous continuable response. Send it with a new q to continue that conversation; reuse the same gl, hl and location. Expires after 30 minutes. Cannot be combined with image_url.
+      - in: query
+        name: image_url
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Public http or https URL of an image to include in the question, up to 2,048 characters. The image may be at most 20 MB. Cannot be combined with subsequent_request_token.
+      - in: query
+        name: location
+        schema:
+          type: string
+          examples:
+          - Austin, Texas
+          maxLength: 63
+        required: false
+        description: Human-readable search location, such as Austin, Texas. At most 63 UTF-8 bytes. Mutually exclusive with uule.
+      - in: query
+        name: uule
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Pre-encoded Google location token. Mutually exclusive with location.
+      - in: query
+        name: google_domain
+        schema:
+          type: string
+          default: google.com
+          examples:
+          - google.com
+        required: false
+        description: Google domain used for the request.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          examples:
+          - us
+          maxLength: 2
+          minLength: 2
+        required: false
+        description: Two-letter country code used to localize results.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          examples:
+          - en
+        required: false
+        description: Language code such as en, en-GB, or de.
+      - in: query
+        name: device
+        schema:
+          enum:
+          - desktop
+          - tablet
+          - mobile
+          type: string
+          default: desktop
+        required: false
+        description: Google device layout. Each device is served Google's real layout for it.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Returns the answer Google AI Mode generates for a question, as ordered text blocks, with the sources it cited. Set continuable to receive a token for a follow-up question; each turn is billed as its own call. Answers take longer than other endpoints, so allow a client timeout of about 120 seconds.
+      operationId: google_ai_mode
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-search
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-search
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-search
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/ai-overview:
+    get:
+      summary: Google AI Overview
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Ai Overview
+          description: Successful response. When Google shows no AI Overview for the query, `ai_overview` is `null`, `search_metadata.ai_overview_state` is `not_served`, and the call is not billed.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: q
+        schema:
+          type: string
+          examples:
+          - coffee shops in Austin
+          maxLength: 2048
+        required: false
+        description: Search query, up to 2,048 characters. Required unless ludocid or kgmid is supplied.
+      - in: query
+        name: ludocid
+        schema:
+          type: string
+          pattern: ^[0-9]+$
+          examples:
+          - '1234567890123456789'
+          maxLength: 128
+        required: false
+        description: Decimal Google CID for a local entity search. Can replace q.
+      - in: query
+        name: kgmid
+        schema:
+          type: string
+          examples:
+          - /m/0k8z
+          maxLength: 512
+        required: false
+        description: Google Knowledge Graph machine ID, such as /m/0k8z. Can replace q.
+      - in: query
+        name: location
+        schema:
+          type: string
+          examples:
+          - Austin, Texas, United States
+          maxLength: 512
+        required: false
+        description: Human-readable search location, up to 512 characters. Use only one of location, uule, or lat and lon.
+      - in: query
+        name: uule
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Pre-encoded Google location token, up to 2,048 characters. Use only one of location, uule, or lat and lon.
+      - in: query
+        name: lat
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          examples:
+          - 30.2672
+        required: false
+        description: Latitude between -90 and 90. Supply with lon; conflicts with location and uule.
+      - in: query
+        name: lon
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          examples:
+          - -97.7431
+        required: false
+        description: Longitude between -180 and 180. Supply with lat; conflicts with location and uule.
+      - in: query
+        name: radius
+        schema:
+          type: number
+          maximum: 1000
+          minimum: 1
+        required: false
+        description: Search radius in meters around location or lat and lon, which it requires. 1 to 199 on desktop, 1 to 1,000 on tablet or mobile.
+      - in: query
+        name: lsig
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Opaque Google local or Knowledge Graph signature, up to 4,096 characters.
+      - in: query
+        name: si
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Opaque cached Google search context, up to 4,096 characters.
+      - in: query
+        name: ibp
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Google layout or expansion control, up to 4,096 characters.
+      - in: query
+        name: uds
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Opaque Google filter token, up to 4,096 characters.
+      - in: query
+        name: color_scheme
+        schema:
+          enum:
+          - light
+          - dark
+          type: string
+        required: false
+        description: Google's light or dark result presentation.
+      - in: query
+        name: google_domain
+        schema:
+          type: string
+          default: google.com
+          examples:
+          - google.com
+        required: false
+        description: A Google domain from Google's supported list, such as google.com or google.co.uk.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          pattern: ^[a-z]{2}$
+          examples:
+          - us
+        required: false
+        description: Lowercase two-letter country code used to localize results.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          pattern: ^[a-z]{2,3}(-[A-Za-z]{2,8})?$
+          examples:
+          - en
+        required: false
+        description: Google interface and result language, such as en, en-US, or de. Defaults to en.
+      - in: query
+        name: cr
+        schema:
+          type: string
+          pattern: ^country[A-Z]{2}(\|country[A-Z]{2})*$
+          examples:
+          - countryUS
+        required: false
+        description: 'Country restriction: one or more countryXX values joined with |, such as countryUS.'
+      - in: query
+        name: lr
+        schema:
+          type: string
+          pattern: ^lang_[a-z]{2,3}(\|lang_[a-z]{2,3})*$
+          examples:
+          - lang_en
+        required: false
+        description: 'Language restriction: one or more lang_xx values joined with |, such as lang_en.'
+      - in: query
+        name: device
+        schema:
+          enum:
+          - desktop
+          - tablet
+          - mobile
+          type: string
+          default: desktop
+          examples:
+          - desktop
+        required: false
+        description: 'Google returns its real layout for the selected device: desktop, tablet, or mobile.'
+      - in: query
+        name: tbs
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Google search-filter string, such as qdr:w, up to 4,096 characters.
+      - in: query
+        name: safe
+        schema:
+          enum:
+          - active
+          - 'off'
+          type: string
+        required: false
+        description: 'Google adult-content filtering: active or off.'
+      - in: query
+        name: nfpr
+        schema:
+          enum:
+          - '0'
+          - '1'
+          type: string
+        required: false
+        description: Set 1 to disable Google spelling auto-correction, or 0 to allow it.
+      - in: query
+        name: filter
+        schema:
+          enum:
+          - '0'
+          - '1'
+          type: string
+        required: false
+        description: 'Google similar-results filtering: 0 or 1.'
+      - in: query
+        name: pws
+        schema:
+          enum:
+          - '0'
+          - '1'
+          type: string
+        required: false
+        description: 'Google personalization flag: 0 or 1. 0 asks for non-personalized results.'
+      - in: query
+        name: peek_pws
+        schema:
+          enum:
+          - '0'
+          - '1'
+          type: string
+        required: false
+        description: 'Google personalization companion flag: 0 or 1, forwarded to Google unchanged.'
+      - in: query
+        name: tbm
+        schema:
+          enum:
+          - lcl
+          - vid
+          - nws
+          - shop
+          - pts
+          type: string
+        required: false
+        description: 'Google vertical: lcl, vid, nws, shop, or pts. Google Images (isch) is rejected with 400 unsupported_search_vertical.'
+      - in: query
+        name: start
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+          examples:
+          - 10
+        required: false
+        description: Result offset for pagination. Defaults to 0.
+      - in: query
+        name: num
+        schema:
+          type: integer
+          maximum: 10
+          minimum: 1
+        required: false
+        description: 'Requested result count, 1 to 10. A best-effort hint: Google may return fewer rows, and results are never padded.'
+      - in: query
+        name: as_dt
+        schema:
+          enum:
+          - i
+          - e
+          type: string
+        required: false
+        description: Include (i) or exclude (e) the as_sitesearch host. Requires as_sitesearch.
+      - in: query
+        name: as_epq
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Exact phrase the results must contain, up to 2,048 characters.
+      - in: query
+        name: as_eq
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Words the results must not contain, up to 2,048 characters.
+      - in: query
+        name: as_lq
+        schema:
+          type: string
+          pattern: ^https?://[^/\s]
+          maxLength: 4096
+        required: false
+        description: Return pages that link to this complete HTTP(S) URL.
+      - in: query
+        name: as_nlo
+        schema:
+          type: integer
+          minimum: 0
+        required: false
+        description: Lower bound of a number range. Supply with as_nhi.
+      - in: query
+        name: as_nhi
+        schema:
+          type: integer
+          minimum: 0
+        required: false
+        description: Upper bound of a number range. Supply with as_nlo.
+      - in: query
+        name: as_oq
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Additional terms of which any may match, up to 2,048 characters.
+      - in: query
+        name: as_q
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Additional terms that must all match, up to 2,048 characters.
+      - in: query
+        name: as_qdr
+        schema:
+          type: string
+          pattern: ^[dwmyDWMY]([1-9][0-9]*)?$
+          examples:
+          - m3
+        required: false
+        description: 'Date range: d, w, m, or y with an optional positive count, such as m3 for the past three months.'
+      - in: query
+        name: as_rq
+        schema:
+          type: string
+          pattern: ^https?://[^/\s]
+          maxLength: 4096
+        required: false
+        description: Return pages related to this complete HTTP(S) URL.
+      - in: query
+        name: as_sitesearch
+        schema:
+          type: string
+          examples:
+          - example.com
+          maxLength: 253
+        required: false
+        description: Hostname to include or exclude, such as example.com. A hostname, not a URL.
+      - in: query
+        name: oq
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Original query text from a Google URL, up to 2,048 characters; forwarded unchanged.
+      - in: query
+        name: gs_lp
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Opaque Google autocomplete-session value from a Google URL, up to 4,096 characters; forwarded unchanged.
+      - in: query
+        name: sclient
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9._-]+$
+          maxLength: 64
+        required: false
+        description: 'Google client label such as gws-wiz-serp: up to 64 letters, digits, dots, underscores, or hyphens.'
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Returns only the AI Overview from a Google results page, and accepts the Google Search parameters except fast_mode. When Google shows no AI Overview for the query, ai_overview is null, search_metadata.ai_overview_state is not_served, and the call is not billed.
+      operationId: google_ai_overview
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-search
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-search
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-search
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/contributor-reviews:
+    get:
+      summary: Fetch a Google Maps contributor's reviews
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Contributor Reviews
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: contributor_id
+        schema:
+          type: string
+          pattern: ^[0-9]{10,32}$
+          examples:
+          - '109736708296406538146'
+        example: '109736708296406538146'
+        required: true
+        description: Required 10 to 32 digit contributor ID, from a Google Maps contributor URL (/maps/contrib/{id}/reviews) or user.contributor_id in a Google Reviews response.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          pattern: ^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$
+          examples:
+          - en
+        required: false
+        description: Review and interface language such as en, en-US, or fr.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          default: us
+          pattern: ^[A-Za-z]{2}$
+          examples:
+          - us
+        required: false
+        description: Two-letter country code used to localize results, normalized to lowercase. Defaults to us.
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 200
+          maximum: 200
+          minimum: 1
+        required: false
+        description: Maximum number of reviews to return, from 1 through 200.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Returns the public review history of one Google Maps contributor, up to 200 reviews in one response. There is no pagination; search_information.truncated is true when the profile has more reviews than were returned.
+      operationId: google_contributor_reviews
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-reviews
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-reviews
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-reviews
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/maps:
+    get:
+      summary: Search Google Maps places
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Maps
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: q
+        schema:
+          type: string
+          examples:
+          - coffee shops in Austin, TX
+        required: false
+        description: Search query, such as coffee shops in Austin, TX. Required when type=search. A search needs one of q, place_id, data_cid or data.
+      - in: query
+        name: type
+        schema:
+          enum:
+          - search
+          - place
+          type: string
+          examples:
+          - search
+        required: false
+        description: search returns a list of places in local_results; place returns one exact place in place_results. Required when searching by q or by filter data, and type=place is required with an exact-place data sequence. Can be omitted with place_id or data_cid.
+      - in: query
+        name: place_id
+        schema:
+          type: string
+          examples:
+          - ChIJT2h1HKZZwokR0kgzEtsa03k
+        required: false
+        description: Google Place ID for an exact-place lookup. Mutually exclusive with data_cid and an exact-place data sequence.
+      - in: query
+        name: data_cid
+        schema:
+          type: string
+        required: false
+        description: Decimal Google CID for an exact-place lookup. Mutually exclusive with place_id and an exact-place data sequence.
+      - in: query
+        name: data
+        schema:
+          type: string
+        required: false
+        description: Google Maps protobuf sequence copied from a Maps URL, beginning with ! and at most 8,192 characters. A sequence that identifies one place requires type=place and is mutually exclusive with place_id and data_cid.
+      - in: query
+        name: ll
+        schema:
+          type: string
+          pattern: ^@?-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?,\d+(?:\.\d+)?[zm]$
+          examples:
+          - '@30.2672,-97.7431,14z'
+        required: false
+        description: Map viewport as @latitude,longitude,zoomz or @latitude,longitude,radiusm, for example @30.2672,-97.7431,14z. Already includes its scale, so do not add z or m. Mutually exclusive with location and lat/lon.
+      - in: query
+        name: location
+        schema:
+          type: string
+          examples:
+          - Austin, Texas, United States
+        required: false
+        description: Human-readable location to center the map on, such as Austin, Texas. Requires z or m. Mutually exclusive with ll and lat/lon.
+      - in: query
+        name: lat
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+        required: false
+        description: Latitude of the map center. Supply with lon and either z or m. Mutually exclusive with ll and location.
+      - in: query
+        name: lon
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+        required: false
+        description: Longitude of the map center. Supply with lat and either z or m. Mutually exclusive with ll and location.
+      - in: query
+        name: z
+        schema:
+          type: number
+          maximum: 30
+          minimum: 3
+        required: false
+        description: Zoom level from 3 through 30. Use with location or lat/lon. Mutually exclusive with m.
+      - in: query
+        name: m
+        schema:
+          type: number
+          maximum: 15028132
+          minimum: 1
+        required: false
+        description: Map radius in meters, from 1 through 15,028,132. Use with location or lat/lon. Mutually exclusive with z.
+      - in: query
+        name: nearby
+        schema:
+          type: boolean
+          default: false
+        required: false
+        description: Set to true to remove near me wording from the query so the supplied viewport is used. Requires ll, location or lat/lon.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          examples:
+          - en
+        required: false
+        description: Language code such as en, en-GB, or de.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          default: us
+          examples:
+          - us
+          maxLength: 2
+          minLength: 2
+        required: false
+        description: Two-letter country code used to localize results. Defaults to us.
+      - in: query
+        name: google_domain
+        schema:
+          type: string
+          default: google.com
+          examples:
+          - google.com
+        required: false
+        description: Google domain used for the request.
+      - in: query
+        name: start
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+        required: false
+        description: 'Result offset in steps of 20: 0, 20, 40 and so on. Prefer following pagination.next from the previous response.'
+      - in: query
+        name: min_price
+        schema:
+          type: integer
+          minimum: 0
+        required: false
+        description: Minimum Google price level, a non-negative integer. Must not exceed max_price.
+      - in: query
+        name: max_price
+        schema:
+          type: integer
+          minimum: 0
+        required: false
+        description: Maximum Google price level, a non-negative integer. Must be at least min_price.
+      - in: query
+        name: min_rating
+        schema:
+          enum:
+          - 2
+          - 2.5
+          - 3
+          - 3.5
+          - 4
+          - 4.5
+          type: number
+        required: false
+        description: Minimum star rating. Google treats it as a relevance preference, so lower-rated or unrated places may still appear.
+      - in: query
+        name: open_state
+        schema:
+          enum:
+          - now
+          - 24h
+          type: string
+        required: false
+        description: now returns places open now; 24h returns places open 24 hours. Cannot be combined with open_on_day or open_at_hour.
+      - in: query
+        name: open_on_day
+        schema:
+          enum:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+          - sat
+          - sun
+          type: string
+        required: false
+        description: Return places open on this weekday, optionally at open_at_hour. Cannot be combined with open_state.
+      - in: query
+        name: open_at_hour
+        schema:
+          type: integer
+          maximum: 23
+          minimum: 0
+        required: false
+        description: Hour from 0 through 23 at which the place must be open. Requires open_on_day. Cannot be combined with open_state.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Search Google Maps with q and type=search to get up to 20 places in local_results, or look up one exact place by place_id, data_cid or data to get place_results. Follow pagination.next to fetch the next 20 places; each page request is one call.
+      operationId: google_maps
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-maps
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-maps
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-maps
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/maps/photo-meta:
+    get:
+      summary: Fetch Google Maps photo metadata
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Maps Photo Meta
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: data_id
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]+$
+          examples:
+          - CIABIhAAQr6KrxiC_knILBjf2RxL
+          maxLength: 4096
+        example: CIABIhAAQr6KrxiC_knILBjf2RxL
+        required: true
+        description: Required Google Maps photo ID. Follow a photo_meta_link from a Google Maps place response or copy the nested photo data_id.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          examples:
+          - en
+        required: false
+        description: Language code such as en, en-GB, or de.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          examples:
+          - us
+          maxLength: 2
+          minLength: 2
+        required: false
+        description: Two-letter country code used to localize results.
+      - in: query
+        name: google_domain
+        schema:
+          type: string
+          default: google.com
+          examples:
+          - google.com
+        required: false
+        description: Google domain used for the request.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Returns the contributor, place, coordinates, type and date of one Google Maps photo. Use a Google Maps photo ID or follow photo_meta_link from a Maps place response.
+      operationId: google_maps_photo_meta
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-maps
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-maps
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-maps
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/maps/popular-times:
+    get:
+      summary: Fetch Google Maps live foot traffic
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Maps Popular Times
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: place_id
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]+$
+          examples:
+          - ChIJT2h1HKZZwokR0kgzEtsa03k
+          maxLength: 512
+        example: ChIJT2h1HKZZwokR0kgzEtsa03k
+        required: true
+        description: Required Google Place ID, up to 512 letters, digits, _ or -. Copy it from a Google Maps search or place response.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          pattern: ^[A-Za-z]{2,3}(?:-[A-Za-z]{2,8})?$
+          examples:
+          - en
+          maxLength: 32
+        required: false
+        description: Language code such as en, en-GB, or de.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          default: us
+          pattern: ^[A-Za-z]{2}$
+          examples:
+          - us
+        required: false
+        description: Two-letter country code used to localize results. Defaults to us.
+      - in: query
+        name: google_domain
+        schema:
+          type: string
+          default: google.com
+          examples:
+          - google.com
+        required: false
+        description: Google domain used for the request.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: 'Returns popular_times for one place: the live busyness score compared with the usual score for this time, plus the usual hourly curve for each weekday. Scores are relative from 0 through 100, not head counts. A place without published popular times returns popular_times as null.'
+      operationId: google_maps_popular_times
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-maps
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-maps
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-maps
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/maps/posts:
+    get:
+      summary: Fetch Google Maps posts
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Maps Posts
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: data_id
+        schema:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+:0x[0-9a-fA-F]+$
+          examples:
+          - 0x89c258e28c304997:0xfcafe4e7ce35ee8c
+        example: 0x89c258e28c304997:0xfcafe4e7ce35ee8c
+        required: true
+        description: Required hexadecimal Maps feature ID. Follow posts_link from a Google Maps place response or copy its data_id.
+      - in: query
+        name: next_page_token
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_+/=-]+$
+          maxLength: 4096
+          minLength: 16
+        required: false
+        description: Opaque continuation token returned by a previous Maps Posts response.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          examples:
+          - en
+        required: false
+        description: Language code such as en, en-GB, or de.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          examples:
+          - us
+          maxLength: 2
+          minLength: 2
+        required: false
+        description: Two-letter country code used to localize results.
+      - in: query
+        name: google_domain
+        schema:
+          type: string
+          default: google.com
+          examples:
+          - google.com
+        required: false
+        description: Google domain used for the request.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Returns the posts a business published on Google Maps. Use the feature data_id or follow posts_link from a Maps place response, then pass next_page_token to continue.
+      operationId: google_maps_posts
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-maps
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-maps
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-maps
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/reviews:
+    get:
+      summary: Fetch Google Maps reviews
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Reviews
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: place_id
+        schema:
+          type: string
+          examples:
+          - ChIJT2h1HKZZwokR0kgzEtsa03k
+        required: false
+        description: Google Place ID. Exactly one of place_id or data_id is required.
+      - in: query
+        name: data_id
+        schema:
+          type: string
+          pattern: ^0x[0-9a-fA-F]+:0x[0-9a-fA-F]+$
+          examples:
+          - 0x89c258e28c304997:0xfcafe4e7ce35ee8c
+        required: false
+        description: Hexadecimal Google Maps feature ID, such as the data_id in a Google Maps response. Exactly one of place_id or data_id is required.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          examples:
+          - en
+        required: false
+        description: Review language code such as en, en-GB, or de.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          default: us
+          examples:
+          - us
+          maxLength: 2
+          minLength: 2
+        required: false
+        description: Two-letter country code used to localize results, normalized to lowercase. Defaults to us.
+      - in: query
+        name: sort_by
+        schema:
+          enum:
+          - qualityScore
+          - newestFirst
+          - ratingHigh
+          - ratingLow
+          type: string
+          default: qualityScore
+        required: false
+        description: 'Review order: qualityScore (most relevant), newestFirst, ratingHigh or ratingLow.'
+      - in: query
+        name: topic_id
+        schema:
+          type: string
+        required: false
+        description: Return only reviews about one topic. Use a topics[].id from a previous response. Mutually exclusive with query.
+      - in: query
+        name: query
+        schema:
+          type: string
+          examples:
+          - parking
+        required: false
+        description: Free-text filter that returns reviews mentioning these words. Mutually exclusive with topic_id.
+      - in: query
+        name: num
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+        required: false
+        description: Number of reviews to return. An initial unfiltered request returns 8 by default and accepts 1 through 100; requests with topic_id, query or next_page_token return 10 by default and accept 1 through 20.
+      - in: query
+        name: next_page_token
+        schema:
+          type: string
+        required: false
+        description: Opaque token from a previous response. Send it with the same place, language, country, sort and filters, or follow pagination.next. Tokens expire after 30 minutes.
+      - in: query
+        name: source_metadata
+        schema:
+          type: boolean
+          default: false
+        required: false
+        description: Set to true to include each review source's icon and rating scale.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Returns reviews for one place identified by place_id or data_id; Google Maps responses include both, plus a ready-made reviews_link. Follow pagination.next to fetch more reviews.
+      operationId: google_reviews
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-reviews
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-reviews
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-reviews
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/search:
+    get:
+      summary: Google Search
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Search
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: fast_mode
+        schema:
+          type: boolean
+          default: false
+        required: false
+        description: Set true to return only organic_results, search_metadata, and search_parameters, skipping AI Overview and all other result groups. Only lowercase true or false are accepted.
+      - in: query
+        name: q
+        schema:
+          type: string
+          examples:
+          - coffee shops in Austin
+          maxLength: 2048
+        required: false
+        description: Search query, up to 2,048 characters. Required unless ludocid or kgmid is supplied.
+      - in: query
+        name: ludocid
+        schema:
+          type: string
+          pattern: ^[0-9]+$
+          examples:
+          - '1234567890123456789'
+          maxLength: 128
+        required: false
+        description: Decimal Google CID for a local entity search. Can replace q.
+      - in: query
+        name: kgmid
+        schema:
+          type: string
+          examples:
+          - /m/0k8z
+          maxLength: 512
+        required: false
+        description: Google Knowledge Graph machine ID, such as /m/0k8z. Can replace q.
+      - in: query
+        name: location
+        schema:
+          type: string
+          examples:
+          - Austin, Texas, United States
+          maxLength: 512
+        required: false
+        description: Human-readable search location, up to 512 characters. Use only one of location, uule, or lat and lon.
+      - in: query
+        name: uule
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Pre-encoded Google location token, up to 2,048 characters. Use only one of location, uule, or lat and lon.
+      - in: query
+        name: lat
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          examples:
+          - 30.2672
+        required: false
+        description: Latitude between -90 and 90. Supply with lon; conflicts with location and uule.
+      - in: query
+        name: lon
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          examples:
+          - -97.7431
+        required: false
+        description: Longitude between -180 and 180. Supply with lat; conflicts with location and uule.
+      - in: query
+        name: radius
+        schema:
+          type: number
+          maximum: 1000
+          minimum: 1
+        required: false
+        description: Search radius in meters around location or lat and lon, which it requires. 1 to 199 on desktop, 1 to 1,000 on tablet or mobile.
+      - in: query
+        name: lsig
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Opaque Google local or Knowledge Graph signature, up to 4,096 characters.
+      - in: query
+        name: si
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Opaque cached Google search context, up to 4,096 characters.
+      - in: query
+        name: ibp
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Google layout or expansion control, up to 4,096 characters.
+      - in: query
+        name: uds
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Opaque Google filter token, up to 4,096 characters.
+      - in: query
+        name: color_scheme
+        schema:
+          enum:
+          - light
+          - dark
+          type: string
+        required: false
+        description: Google's light or dark result presentation.
+      - in: query
+        name: google_domain
+        schema:
+          type: string
+          default: google.com
+          examples:
+          - google.com
+        required: false
+        description: A Google domain from Google's supported list, such as google.com or google.co.uk.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          pattern: ^[a-z]{2}$
+          examples:
+          - us
+        required: false
+        description: Lowercase two-letter country code used to localize results.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          pattern: ^[a-z]{2,3}(-[A-Za-z]{2,8})?$
+          examples:
+          - en
+        required: false
+        description: Google interface and result language, such as en, en-US, or de. Defaults to en.
+      - in: query
+        name: cr
+        schema:
+          type: string
+          pattern: ^country[A-Z]{2}(\|country[A-Z]{2})*$
+          examples:
+          - countryUS
+        required: false
+        description: 'Country restriction: one or more countryXX values joined with |, such as countryUS.'
+      - in: query
+        name: lr
+        schema:
+          type: string
+          pattern: ^lang_[a-z]{2,3}(\|lang_[a-z]{2,3})*$
+          examples:
+          - lang_en
+        required: false
+        description: 'Language restriction: one or more lang_xx values joined with |, such as lang_en.'
+      - in: query
+        name: device
+        schema:
+          enum:
+          - desktop
+          - tablet
+          - mobile
+          type: string
+          default: desktop
+          examples:
+          - desktop
+        required: false
+        description: 'Google returns its real layout for the selected device: desktop, tablet, or mobile.'
+      - in: query
+        name: tbs
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Google search-filter string, such as qdr:w, up to 4,096 characters.
+      - in: query
+        name: safe
+        schema:
+          enum:
+          - active
+          - 'off'
+          type: string
+        required: false
+        description: 'Google adult-content filtering: active or off.'
+      - in: query
+        name: nfpr
+        schema:
+          enum:
+          - '0'
+          - '1'
+          type: string
+        required: false
+        description: Set 1 to disable Google spelling auto-correction, or 0 to allow it.
+      - in: query
+        name: filter
+        schema:
+          enum:
+          - '0'
+          - '1'
+          type: string
+        required: false
+        description: 'Google similar-results filtering: 0 or 1.'
+      - in: query
+        name: pws
+        schema:
+          enum:
+          - '0'
+          - '1'
+          type: string
+        required: false
+        description: 'Google personalization flag: 0 or 1. 0 asks for non-personalized results.'
+      - in: query
+        name: peek_pws
+        schema:
+          enum:
+          - '0'
+          - '1'
+          type: string
+        required: false
+        description: 'Google personalization companion flag: 0 or 1, forwarded to Google unchanged.'
+      - in: query
+        name: tbm
+        schema:
+          enum:
+          - lcl
+          - vid
+          - nws
+          - shop
+          - pts
+          type: string
+        required: false
+        description: 'Google vertical: lcl, vid, nws, shop, or pts. Google Images (isch) is rejected with 400 unsupported_search_vertical.'
+      - in: query
+        name: start
+        schema:
+          type: integer
+          default: 0
+          minimum: 0
+          examples:
+          - 10
+        required: false
+        description: Result offset for pagination. Defaults to 0.
+      - in: query
+        name: num
+        schema:
+          type: integer
+          maximum: 10
+          minimum: 1
+        required: false
+        description: 'Requested result count, 1 to 10. A best-effort hint: Google may return fewer rows, and results are never padded.'
+      - in: query
+        name: as_dt
+        schema:
+          enum:
+          - i
+          - e
+          type: string
+        required: false
+        description: Include (i) or exclude (e) the as_sitesearch host. Requires as_sitesearch.
+      - in: query
+        name: as_epq
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Exact phrase the results must contain, up to 2,048 characters.
+      - in: query
+        name: as_eq
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Words the results must not contain, up to 2,048 characters.
+      - in: query
+        name: as_lq
+        schema:
+          type: string
+          pattern: ^https?://[^/\s]
+          maxLength: 4096
+        required: false
+        description: Return pages that link to this complete HTTP(S) URL.
+      - in: query
+        name: as_nlo
+        schema:
+          type: integer
+          minimum: 0
+        required: false
+        description: Lower bound of a number range. Supply with as_nhi.
+      - in: query
+        name: as_nhi
+        schema:
+          type: integer
+          minimum: 0
+        required: false
+        description: Upper bound of a number range. Supply with as_nlo.
+      - in: query
+        name: as_oq
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Additional terms of which any may match, up to 2,048 characters.
+      - in: query
+        name: as_q
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Additional terms that must all match, up to 2,048 characters.
+      - in: query
+        name: as_qdr
+        schema:
+          type: string
+          pattern: ^[dwmyDWMY]([1-9][0-9]*)?$
+          examples:
+          - m3
+        required: false
+        description: 'Date range: d, w, m, or y with an optional positive count, such as m3 for the past three months.'
+      - in: query
+        name: as_rq
+        schema:
+          type: string
+          pattern: ^https?://[^/\s]
+          maxLength: 4096
+        required: false
+        description: Return pages related to this complete HTTP(S) URL.
+      - in: query
+        name: as_sitesearch
+        schema:
+          type: string
+          examples:
+          - example.com
+          maxLength: 253
+        required: false
+        description: Hostname to include or exclude, such as example.com. A hostname, not a URL.
+      - in: query
+        name: oq
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Original query text from a Google URL, up to 2,048 characters; forwarded unchanged.
+      - in: query
+        name: gs_lp
+        schema:
+          type: string
+          maxLength: 4096
+        required: false
+        description: Opaque Google autocomplete-session value from a Google URL, up to 4,096 characters; forwarded unchanged.
+      - in: query
+        name: sclient
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9._-]+$
+          maxLength: 64
+        required: false
+        description: 'Google client label such as gws-wiz-serp: up to 64 letters, digits, dots, underscores, or hyphens.'
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: 'Returns a Google results page as JSON: organic results plus every other result group Google served, such as ads, AI Overview, knowledge graph, and local results. Supply at least one of q, ludocid, or kgmid; page through results with start. Set fast_mode=true to return organic results only.'
+      operationId: google_search
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-search
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-search
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-search
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/shopping:
+    get:
+      summary: Google Shopping
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Shopping
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: q
+        schema:
+          type: string
+          examples:
+          - coffee maker
+          maxLength: 2048
+        required: false
+        description: Product search term, up to 2,048 characters. Required unless shoprs is supplied. This is a search, not an exact product ID lookup.
+      - in: query
+        name: shoprs
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_-]{1,4096}$
+          maxLength: 4096
+        required: false
+        description: Refinement token from a previous response's filters. An explicit refinement parameter replaces the refinement it carries.
+      - in: query
+        name: min_price
+        schema:
+          type: number
+          maximum: 1000000000
+          minimum: 0
+        required: false
+        description: Lower price bound in the storefront currency. Cannot be combined with on_sale, free_shipping or small_business.
+      - in: query
+        name: max_price
+        schema:
+          type: number
+          maximum: 1000000000
+          minimum: 0
+        required: false
+        description: Upper price bound in the storefront currency, at or above min_price. Cannot be combined with on_sale, free_shipping or small_business.
+      - in: query
+        name: sort_by
+        schema:
+          enum:
+          - '1'
+          - '2'
+          - '3'
+          - '4'
+          type: string
+        required: false
+        description: 'Sort order: 1 price low to high, 2 price high to low, 3 rating high to low, 4 relevance (the default). Combines with any one refinement.'
+      - in: query
+        name: free_shipping
+        schema:
+          type: boolean
+          default: false
+        required: false
+        description: Show only products with free shipping. Cannot be combined with another refinement.
+      - in: query
+        name: on_sale
+        schema:
+          type: boolean
+          default: false
+        required: false
+        description: Show only products Google marks as on sale. Cannot be combined with another refinement.
+      - in: query
+        name: small_business
+        schema:
+          type: boolean
+          default: false
+        required: false
+        description: Show only products from small businesses. Cannot be combined with another refinement.
+      - in: query
+        name: start
+        schema:
+          type: integer
+          default: 0
+          maximum: 1000
+          minimum: 0
+        required: false
+        description: Result offset.
+      - in: query
+        name: num
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          examples:
+          - 60
+        required: false
+        description: Number of products to return. Google serves 40 products per page; a larger num reads further pages within the same call and returns fewer only when Google has no more products.
+      - in: query
+        name: location
+        schema:
+          type: string
+          examples:
+          - Austin, Texas
+          maxLength: 63
+        required: false
+        description: Human-readable search location, such as Austin, Texas. At most 63 UTF-8 bytes. Mutually exclusive with uule.
+      - in: query
+        name: uule
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Pre-encoded Google location token. Mutually exclusive with location.
+      - in: query
+        name: google_domain
+        schema:
+          type: string
+          default: google.com
+          examples:
+          - google.com
+        required: false
+        description: Google domain used for the request.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          examples:
+          - us
+          maxLength: 2
+          minLength: 2
+        required: false
+        description: Two-letter country code used to localize results.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          examples:
+          - en
+        required: false
+        description: Language code such as en, en-GB, or de.
+      - in: query
+        name: device
+        schema:
+          enum:
+          - desktop
+          - tablet
+          - mobile
+          type: string
+          default: desktop
+        required: false
+        description: Google device layout. Each device is served Google's real layout for it.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Returns the Google Shopping product grid, category blocks, sponsored listings and refinement filters. Google applies one refinement at a time, so min_price/max_price, on_sale, free_shipping and small_business are mutually exclusive; sort_by combines with any one of them. Each clustered product carries a litescrape_product_link to /api/google/shopping/product.
+      operationId: google_shopping
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-shopping
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-shopping
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-shopping
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/google/shopping/product:
+    get:
+      summary: Google Shopping Product
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Google Shopping Product
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: q
+        schema:
+          type: string
+          examples:
+          - coffee maker
+          maxLength: 2048
+        example: coffee maker
+        required: true
+        description: Required search term from the shopping request that found the product. Google resolves the product page against it as well as the identifiers.
+      - in: query
+        name: gpcid
+        schema:
+          type: string
+          pattern: ^[0-9]{1,20}$
+          examples:
+          - '16418087637395758399'
+        required: false
+        description: Product cluster ID from a shopping result. Required unless prds is supplied; follow litescrape_product_link for a ready-made request.
+      - in: query
+        name: headline_offer_docid
+        schema:
+          type: string
+          pattern: ^[0-9]{1,20}$
+          examples:
+          - '8780992468355455962'
+        required: false
+        description: Optional headline offer document ID from the same shopping result; use with gpcid.
+      - in: query
+        name: image_docid
+        schema:
+          type: string
+          pattern: ^[0-9]{1,20}$
+          examples:
+          - '9437029998757085507'
+        required: false
+        description: Optional image document ID from the same shopping result; use with gpcid.
+      - in: query
+        name: prds
+        schema:
+          type: string
+          pattern: ^[A-Za-z0-9_:,.-]{1,2048}$
+          maxLength: 2048
+        required: false
+        description: Google product selector token from a previous response. Mutually exclusive with gpcid and its companion document IDs.
+      - in: query
+        name: location
+        schema:
+          type: string
+          examples:
+          - Austin, Texas
+          maxLength: 63
+        required: false
+        description: Human-readable search location, such as Austin, Texas. At most 63 UTF-8 bytes. Mutually exclusive with uule.
+      - in: query
+        name: uule
+        schema:
+          type: string
+          maxLength: 2048
+        required: false
+        description: Pre-encoded Google location token. Mutually exclusive with location.
+      - in: query
+        name: google_domain
+        schema:
+          type: string
+          default: google.com
+          examples:
+          - google.com
+        required: false
+        description: Google domain used for the request.
+      - in: query
+        name: gl
+        schema:
+          type: string
+          examples:
+          - us
+          maxLength: 2
+          minLength: 2
+        required: false
+        description: Two-letter country code used to localize results.
+      - in: query
+        name: hl
+        schema:
+          type: string
+          default: en
+          examples:
+          - en
+        required: false
+        description: Language code such as en, en-GB, or de.
+      - in: query
+        name: device
+        schema:
+          enum:
+          - desktop
+          - tablet
+          - mobile
+          type: string
+          default: desktop
+        required: false
+        description: Google device layout. Each device is served Google's real layout for it.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Returns one Google Shopping product's merchant offers, specifications, reviews and related products. Follow litescrape_product_link from a shopping result, or supply q with its product identifiers.
+      operationId: google_shopping_product
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - google-shopping
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: google-shopping
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: google-shopping
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Google
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+components:
+  schemas:
+    sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0:
+      type: object
+      required:
+      - error
+      - error_code
+      - status_code
+      - request_id
+      - retryable
+      properties:
+        error:
+          type: string
+          description: Human-readable failure message.
+        retryable:
+          type: boolean
+          description: Whether the same request may succeed if retried.
+        error_code:
+          type: string
+          examples:
+          - invalid_request
+          description: Stable machine-readable error code.
+        request_id:
+          type: string
+          description: Identifier to quote when contacting support.
+        status_code:
+          type: integer
+          description: HTTP status repeated in the body.
+        search_parameters:
+          type: object
+          description: The parameters the request was received with.
+          additionalProperties: true
+  securitySchemes:
+    planAccess:
+      type: http
+      scheme: bearer
+      description: 'Plan access. Calls are sold on plans (credit or subscription), not per call: an unidentified call returns 401 bearer_required with a registration recipe, and an identified call with no covering plan returns 403 plan_required listing the plans that cover it. Reuse your existing agent identity; register only if new (anonymous registration is one free API call; the recipe is at https://agents.litescrape.com/auth.md), buy a plan at POST https://agents.litescrape.com/plans/{planId}/purchase (its priced 402 settles with a supported payment method - x402 or MPP today - or by card), then retry with the access token as Authorization: Bearer <token>. No upstream API key is needed.'
+    sellerAgentX402:
+      type: apiKey
+      in: header
+      name: Payment-Signature
+      description: Signed $0 x402 proof from the 402 challenge
+    sellerAgentMpp:
+      type: http
+      scheme: Payment
+      description: Signed $0 MPP proof from the 402 challenge
+externalDocs:
+  url: https://agents.litescrape.com/llms-full.txt
+  description: How to authenticate, pay, and call this API; links the upstream API reference.
+x-refined-from:
+- litescrape-agents-openapi.json
+- litescrape-openapi.yml
+x-zeroclick-navigation:
+  fullSpec: https://agents.litescrape.com/openapi.json
+  services: https://agents.litescrape.com/services
+  serviceSpecTemplate: https://agents.litescrape.com/services/{slug}/openapi.json
+  searchTemplate: https://agents.litescrape.com/openapi.json?q={text}
+  operationTemplate: https://agents.litescrape.com/openapi.json?path={path}&method={method}
+  firstPage: https://agents.litescrape.com/openapi.json?page=1
+  instructions:
+  - Use this spec if it contains the operation and details you need. Otherwise, search or open a relevant service spec using the links below.
+  - Find service slugs in x-zeroclick-services or x-payment-info.rates[].service; use them in serviceSpecTemplate, never as request values.
+  - URL-encode template values. Search is ranked; service, path, and method filters are exact. Filters combine.
+  - Pages contain up to 10 operations; follow info.x-next or the Link header if you need more results. Shared operations retain all selector values.
+x-service-info:
+  categories:
+  - search
+  - web
+  docs:
+    homepage: https://litescrape.com
+    apiReference: https://agents.litescrape.com/openapi.json
+    llms: https://agents.litescrape.com/llms.txt
+x-zeroclick-navigation-footer:
+  instructions:
+  - Use this spec if it contains the operation and details you need. Otherwise, search or open a relevant service spec using the links below.
+  - Find service slugs in x-zeroclick-services or x-payment-info.rates[].service; use them in serviceSpecTemplate, never as request values.
+  - URL-encode template values. Search is ranked; service, path, and method filters are exact. Filters combine.
+  - Pages contain up to 10 operations; follow info.x-next or the Link header if you need more results. Shared operations retain all selector values.
+  fullSpec: https://agents.litescrape.com/openapi.json
+  services: https://agents.litescrape.com/services
+  serviceSpecTemplate: https://agents.litescrape.com/services/{slug}/openapi.json
+  searchTemplate: https://agents.litescrape.com/openapi.json?q={text}
+  operationTemplate: https://agents.litescrape.com/openapi.json?path={path}&method={method}
+  firstPage: https://agents.litescrape.com/openapi.json?page=1

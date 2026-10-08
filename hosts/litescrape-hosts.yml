@@ -1,0 +1,84 @@
+generated: '2026-10-07'
+method: derived
+source: the pre-flight dossier, apis.yml pointers, spec servers, well-known, vendors -- nothing fetched here
+generator: derive-hosts.py
+summary:
+  hosts: 5
+  own: 4
+  other_domain: 0
+  platform: 1
+  roles:
+  - api
+  - other
+  - source
+  - website
+hosts:
+- host: agents.litescrape.com
+  found_by:
+  - probed
+  - site-links
+  - docs-index
+  - contract-discovery
+  - well-known
+  types: []
+  serves:
+  - docs
+  platform: agentauth.zeroclick.io
+  registrable_domain: litescrape.com
+  role: other
+  relation: own
+- host: api.litescrape.com
+  found_by:
+  - apis[]
+  - contract-discovery
+  types: []
+  serves:
+  - api
+  registrable_domain: litescrape.com
+  role: api
+  relation: own
+- host: github.com
+  found_by:
+  - pointer
+  types:
+  - Security
+  - GitHubOrganization
+  serves: []
+  registrable_domain: github.com
+  role: source
+  relation: platform
+- host: litescrape.com
+  found_by:
+  - pointer
+  - apis[]
+  - probed
+  - docs-index
+  - contract-discovery
+  - well-known
+  - vendor-detect
+  types:
+  - Deprecation
+  - Website
+  - Documentation
+  - APIReference
+  - Blog
+  - Pricing
+  - Playground
+  - PrivacyPolicy
+  - TermsOfService
+  serves:
+  - docs
+  - cdn
+  vendor: cloudflare
+  registrable_domain: litescrape.com
+  role: website
+  relation: own
+- host: mcp.litescrape.com
+  found_by:
+  - apis[]
+  types: []
+  serves:
+  - api
+  registrable_domain: litescrape.com
+  role: other
+  relation: own

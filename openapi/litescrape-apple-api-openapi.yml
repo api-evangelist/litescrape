@@ -1,0 +1,622 @@
+openapi: 3.2.0
+info:
+  title: Litescrape Apple API
+  version: 1.0.0
+  x-guidance: 'Start with the free seller advisor: POST https://agents.litescrape.com/zeroclick/agent/quote with your goal and known budget or requirements. This operation costs $0 and requires only an x402 or MPP wallet proof; it returns a guide and never executes a purchase. Without a wallet, GET https://agents.litescrape.com/zeroclick/agent/guide?goal=URL_ENCODED_TASK or POST to that guide. Other operations below are the direct API reference; their own prices and access requirements still apply. Call the operations listed in this document at https://agents.litescrape.com. Each service''s full price matrix, plans, and how to buy are at https://agents.litescrape.com/services/{slug}; each operation''s x-payment-info names the service it bills by slug (rates[].service). Slugs identify services in prices and usage reports and are never request values: when one operation serves several services, its request body schema lists the accepted values of the field that selects the service, so send one of those exactly as written. Calls here are sold on plans, not per call: an unidentified call returns 401 bearer_required with a registration recipe, never a per-call 402. Reuse your existing agent identity; register only if new (anonymous registration is one free API call; the recipe is at https://agents.litescrape.com/auth.md), buy a plan at POST https://agents.litescrape.com/plans/{planId}/purchase (its priced 402 settles with a supported payment method - x402 (Base USDC) or MPP (Tempo USDC) today - or by card), then retry with Authorization: Bearer <token>. No upstream API key is needed. Read GET https://agents.litescrape.com/manifest.json for the live services, meters, plans, and prices, and https://agents.litescrape.com/llms-full.txt for the full agent guide.'
+  description: 'Operations tagged Apple across 2 of this provider''s published API definitions: litescrape-agents-openapi.json, litescrape-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: https://agents.litescrape.com
+  description: Plan-based access to Litescrape's API
+security:
+- planAccess: []
+tags:
+- name: Apple
+paths:
+  /api/apple/maps/places:
+    get:
+      summary: Fetch Apple Maps places
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Apple Maps Places
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: muid
+        schema:
+          type: string
+          examples:
+          - '4372355869446211302'
+        example: '4372355869446211302'
+        required: true
+        description: One to 50 comma-separated unsigned 64-bit decimal Apple Maps place IDs.
+      - in: query
+        name: locale
+        schema:
+          type: string
+          default: en-US
+          examples:
+          - en-US
+        required: false
+        description: Apple-supported language-region locale such as en-US, en-GB, fr-FR, ja-JP, or zh-TW. Controls language and regional formatting.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Resolve one to 50 unsigned 64-bit decimal Apple Maps MUIDs. Returns place_results in the requested order.
+      operationId: apple_maps_places
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - apple-maps
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: apple-maps
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: apple-maps
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Apple
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+  /api/apple/maps/reviews:
+    get:
+      summary: Fetch Apple Maps reviews
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Apple Maps Reviews
+          description: Successful response; one call consumed unless noted otherwise.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Invalid or unrecognized parameters; no call consumed.
+        '401':
+          description: 'Agent identity credential required: register once, then retry with Authorization: Bearer <token>.'
+        '402':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The API key has no calls remaining.
+        '403':
+          description: No active plan covers this call; the body lists the plans that do. Buy one with your bearer, then retry.
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: The key's concurrency limit was reached; retry after in-flight requests finish.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Internal failure; the call is refunded.
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0'
+          description: Temporarily unavailable (service_unavailable), or the request's timeout expired (request_deadline_exceeded); the call is not billed. Retryable.
+      parameters:
+      - in: query
+        name: muid
+        schema:
+          type: string
+          examples:
+          - '4560078147072908047'
+        example: '4560078147072908047'
+        required: true
+        description: Exactly one unsigned 64-bit decimal Apple Maps place ID, such as the muid in an Apple Maps Places response.
+      - in: query
+        name: locale
+        schema:
+          type: string
+          default: en-US
+          examples:
+          - en-US
+        required: false
+        description: Apple-supported language-region locale such as en-US, en-GB, fr-FR, ja-JP, or zh-TW. Controls language and regional formatting.
+      - in: query
+        name: timeout
+        schema:
+          type: number
+          maximum: 90
+          exclusiveMinimum: 0
+        required: false
+        description: Optional budget for the entire request in seconds, measured from gateway receipt until the response is ready to send. Includes admission, queueing and settlement. Must be greater than 0 and at most 90. On expiry, the call is not billed and returns 503 request_deadline_exceeded with retryable=true and a request ID. Omit to retain the standard server deadline.
+      description: Returns Apple's own rating summary and written reviews for one Apple Maps place; ratings and reviews attributed to other providers are omitted. reviews can be empty when a rating summary exists, and there is no pagination.
+      operationId: apple_maps_reviews
+      x-zeroclick-document-sources:
+      - gaps: []
+        pages: []
+        sourceId: sds_oiSNnl6piiW-6PsH3jP5d
+        authority: official
+        conflicts: []
+        revisionId: sdrn_N7MBDGVCvt9TpfaGaX4tI
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_-Doc8BDPLC_7ZkbclczY3
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_z5o2SNZEEooN1t-55qeQb
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_7wh2ZwlyorKdy2ufWzdbp
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_qC1Dr-UkeDWdT1qZHh4bc
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_dE1vb6KP_VC0YEcwOiFTQ
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_g0NEXSEZu-X279iJ6sb1S
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_doST8RJcW6OpLSY63EeP8
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_4PwsbhA1n_XExLRzrDQxV
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_ecdqfIR7qoiK3yqTyB_ly
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_8Wq6yZaXo01N22nTHsee7
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_HZiiMis4YzmZHpVu4Ypvk
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_mafzmR8eeOUNagY8jLeYa
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_iyNcJAHqzlubStW5tbg7t
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_e4mgAJN0hwR3hjn5N_3t4
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_Od4TzBU3529zIQGX2q3N_
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_aftu4rCg-Ycv-J_NwBG6u
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_omxoQQUm3BbiN_tSTpAmS
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_jzM1YhBsFJDmnXIkHA5Vj
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_tZFzBVHMAZwlnxQU25Y5q
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_-Aq7GPhDx6Y6Fm2lOzD7z
+      - gaps:
+        - Missing parameter definitions
+        - Missing request body schema
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_VM53FMzOIP_FPz7oxPoC7
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        revisionId: sdrn_3FO1Ga7w2O9jHSw5_bmwN
+      - gaps:
+        - Missing parameter definitions
+        - Missing response schema
+        pages:
+        - 1
+        sourceId: sds_XeHsE8MJ9PcM_CaL-Sj0A
+        authority: supplemental
+        conflicts:
+        - /summary
+        - /responses/200/description
+        - /description
+        - /operationId
+        revisionId: sdrn_f7Ljr_55BvzuuPE1jG1mP
+      x-zeroclick-services:
+      - apple-maps
+      x-payment-info:
+        access: plan
+        price:
+          mode: fixed
+          currency: USD
+          amount: '0.000150'
+        rates:
+        - service: apple-maps
+          meter: requests
+          unit: request
+          unitSize: 1
+          priceUsd: '0.000150'
+          includedUnits: 0
+        perCallUsage:
+        - service: apple-maps
+          meter: requests
+          quantity: 1
+      security:
+      - planAccess: []
+      tags:
+      - Apple
+    servers:
+    - url: https://agents.litescrape.com
+      description: Plan-based access to Litescrape's API
+components:
+  schemas:
+    sds_oiSNnl6piiW-6PsH3jP5d_461cecb8dff2a50f_ref0:
+      type: object
+      required:
+      - error
+      - error_code
+      - status_code
+      - request_id
+      - retryable
+      properties:
+        error:
+          type: string
+          description: Human-readable failure message.
+        retryable:
+          type: boolean
+          description: Whether the same request may succeed if retried.
+        error_code:
+          type: string
+          examples:
+          - invalid_request
+          description: Stable machine-readable error code.
+        request_id:
+          type: string
+          description: Identifier to quote when contacting support.
+        status_code:
+          type: integer
+          description: HTTP status repeated in the body.
+        search_parameters:
+          type: object
+          description: The parameters the request was received with.
+          additionalProperties: true
+  securitySchemes:
+    planAccess:
+      type: http
+      scheme: bearer
+      description: 'Plan access. Calls are sold on plans (credit or subscription), not per call: an unidentified call returns 401 bearer_required with a registration recipe, and an identified call with no covering plan returns 403 plan_required listing the plans that cover it. Reuse your existing agent identity; register only if new (anonymous registration is one free API call; the recipe is at https://agents.litescrape.com/auth.md), buy a plan at POST https://agents.litescrape.com/plans/{planId}/purchase (its priced 402 settles with a supported payment method - x402 or MPP today - or by card), then retry with the access token as Authorization: Bearer <token>. No upstream API key is needed.'
+    sellerAgentX402:
+      type: apiKey
+      in: header
+      name: Payment-Signature
+      description: Signed $0 x402 proof from the 402 challenge
+    sellerAgentMpp:
+      type: http
+      scheme: Payment
+      description: Signed $0 MPP proof from the 402 challenge
+externalDocs:
+  url: https://agents.litescrape.com/llms-full.txt
+  description: How to authenticate, pay, and call this API; links the upstream API reference.
+x-refined-from:
+- litescrape-agents-openapi.json
+- litescrape-openapi.yml
+x-zeroclick-navigation:
+  fullSpec: https://agents.litescrape.com/openapi.json
+  services: https://agents.litescrape.com/services
+  serviceSpecTemplate: https://agents.litescrape.com/services/{slug}/openapi.json
+  searchTemplate: https://agents.litescrape.com/openapi.json?q={text}
+  operationTemplate: https://agents.litescrape.com/openapi.json?path={path}&method={method}
+  firstPage: https://agents.litescrape.com/openapi.json?page=1
+  instructions:
+  - Use this spec if it contains the operation and details you need. Otherwise, search or open a relevant service spec using the links below.
+  - Find service slugs in x-zeroclick-services or x-payment-info.rates[].service; use them in serviceSpecTemplate, never as request values.
+  - URL-encode template values. Search is ranked; service, path, and method filters are exact. Filters combine.
+  - Pages contain up to 10 operations; follow info.x-next or the Link header if you need more results. Shared operations retain all selector values.
+x-service-info:
+  categories:
+  - search
+  - web
+  docs:
+    homepage: https://litescrape.com
+    apiReference: https://agents.litescrape.com/openapi.json
+    llms: https://agents.litescrape.com/llms.txt
+x-zeroclick-navigation-footer:
+  instructions:
+  - Use this spec if it contains the operation and details you need. Otherwise, search or open a relevant service spec using the links below.
+  - Find service slugs in x-zeroclick-services or x-payment-info.rates[].service; use them in serviceSpecTemplate, never as request values.
+  - URL-encode template values. Search is ranked; service, path, and method filters are exact. Filters combine.
+  - Pages contain up to 10 operations; follow info.x-next or the Link header if you need more results. Shared operations retain all selector values.
+  fullSpec: https://agents.litescrape.com/openapi.json
+  services: https://agents.litescrape.com/services
+  serviceSpecTemplate: https://agents.litescrape.com/services/{slug}/openapi.json
+  searchTemplate: https://agents.litescrape.com/openapi.json?q={text}
+  operationTemplate: https://agents.litescrape.com/openapi.json?path={path}&method={method}
+  firstPage: https://agents.litescrape.com/openapi.json?page=1

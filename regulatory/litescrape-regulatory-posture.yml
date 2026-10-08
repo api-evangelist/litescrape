@@ -1,0 +1,51 @@
+generated: '2026-10-07'
+method: searched
+source:
+- https://litescrape.com/privacy
+- https://litescrape.com/zdr-policy
+- https://litescrape.com/terms
+description: Horizontal regulatory signals harvested from what Litescrape publishes; nothing here decides which regime applies.
+  The substance is in the Privacy Policy (GPC statement, data-subject rights, processing location) and the Zero Data Retention
+  policy (effective September 22, 2026). No trust center, subprocessor table, accessibility conformance report, SBOM, transparency
+  report, AI-transparency page or support-lifetime statement was found on the site; /security.txt and /.well-known/security.txt
+  return 404.
+signals:
+  global_privacy_control:
+    honored: true
+    url: https://litescrape.com/privacy
+    note: Published statement only; not tested by sending a Sec-GPC header.
+    evidence:
+    - source: https://litescrape.com/privacy
+      http_status: 200
+      fetched: '2026-10-07'
+      quote: We honor Global Privacy Control signals.
+  data_subject_request:
+    url: https://litescrape.com/privacy
+    channel: support@litescrape.com (the contact the policy and ZDR policy name)
+    evidence:
+    - source: https://litescrape.com/privacy
+      http_status: 200
+      fetched: '2026-10-07'
+      quote: Depending on where you live, you may have the right to access, correct, delete, or receive a copy of your personal
+        data, to object to or restrict its processing, to withdraw consent, and to opt out of targeted advertising
+  data_residency:
+    url: https://litescrape.com/privacy
+    note: A disclosure of processing location and transfer mechanism, not a selectable residency region.
+    evidence:
+    - source: https://litescrape.com/privacy
+      http_status: 200
+      fetched: '2026-10-07'
+      quote: We are based in the United States and process data there. Where we receive personal data from the European Economic
+        Area, the United Kingdom, or Switzerland, we rely on recognized transfer safeguards such as standard contractual clauses
+  zero_data_retention:
+    url: https://litescrape.com/zdr-policy
+    effective: '2026-09-22'
+    mechanism: PATCH /api/keys/zdr with {"zdr_enabled":true}; available to keys that have received a paid top-up; off by default.
+    note: Not one of the canonical pointer signals; recorded because it is a dated, published retention commitment with an
+      API control.
+    evidence:
+    - source: https://litescrape.com/zdr-policy
+      http_status: 200
+      fetched: '2026-10-07'
+      quote: When ZDR is enabled, we do not retain or aggregate your query parameters or API responses beyond 24 hours. We
+        do not use your queries or responses to train machine learning models.

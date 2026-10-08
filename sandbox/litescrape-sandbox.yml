@@ -1,0 +1,37 @@
+generated: '2026-10-07'
+method: searched
+source:
+- https://litescrape.com/playground
+- https://litescrape.com/pricing
+- https://litescrape.com/docs/mcp
+description: Litescrape publishes no separate sandbox or test mode. There is one key format (ls_live_) and every call runs
+  against the live search engines; what it offers for trying the API is a browser playground that runs live requests, 5 free
+  calls on a new visitor key, and a keyless daily allowance on four MCP tools.
+docs:
+- https://litescrape.com/playground
+- https://litescrape.com/docs/mcp
+modes:
+- name: live
+  key_prefixes:
+  - ls_live_
+  notes: The only mode. "Failed requests cost nothing" and "You pay for HTTP 200 responses only" (pricing page), so an unsuccessful
+    trial call is not billed.
+key_formats:
+  api_key:
+    live: ls_live_...
+environments:
+- name: Playground
+  url: https://litescrape.com/playground
+  description: Browser form for every endpoint (Search, Maps, AI Overview, Fetch and the rest) that builds and runs a live
+    request and shows the JSON; also emits copyable SDK, cURL and MCP calls.
+- name: Free calls on a new key
+  url: https://litescrape.com/pricing
+  description: '"5 free calls on your new visitor key" and "The 5 free calls on a new key never expire." (pricing page).'
+- name: Keyless MCP allowance
+  url: https://litescrape.com/docs/mcp
+  description: '"Google Search, Google Maps, Bing Search and DuckDuckGo Search have a free keyless allowance." Per the server''s
+    own initialize instructions, google_search 25 calls and bing_search, google_maps, duckduckgo_search 50 calls each per
+    network per UTC day, one call at a time; failed calls do not count.'
+gaps:
+- No test-mode keys, fixtures or recorded responses; trial calls hit live Google, Bing, DuckDuckGo and the map providers.
+- No time simulation or trigger tooling (the API has no webhook or event surface).

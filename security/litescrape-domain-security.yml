@@ -1,0 +1,16 @@
+generated: '2026-10-07'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: litescrape.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Dec 28 22:34:39 2026 GMT
+  hsts: null
+domains:
+- domain: litescrape.com
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: quarantine
