@@ -1,8 +1,7 @@
 {
   "provider": "litescrape",
   "sources": [
-    "_original/litescrape-agents-openapi.json",
-    "litescrape-openapi.yml"
+    "_original/litescrape-agents-openapi.json"
   ],
   "outputs": [
     "litescrape-apple-api-openapi.yml",
@@ -13,12 +12,11 @@
     "litescrape-yelp-api-openapi.yml",
     "litescrape-zeroclick-api-openapi.yml"
   ],
-  "archived": [
-    "archived openapi/litescrape-openapi.yml"
-  ],
+  "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
+    "1 archived document(s) dropped as subsets of other archived documents",
     "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "litescrape-agents-openapi.json: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
     "litescrape-agents-openapi.json: tagged paths GET /api/apple/maps/places -> Apple",
@@ -51,45 +49,16 @@
     "litescrape-agents-openapi.json: declared missing tag: Tripadvisor",
     "litescrape-agents-openapi.json: declared missing tag: Yelp",
     "litescrape-agents-openapi.json: declared missing tag: Zeroclick",
-    "litescrape-openapi.yml: upgraded openapi 3.1.0 -> OpenAPI 3.2.0",
-    "litescrape-openapi.yml: tagged paths GET /api/apple/maps/places -> Apple",
-    "litescrape-openapi.yml: tagged paths GET /api/apple/maps/reviews -> Apple",
-    "litescrape-openapi.yml: tagged paths GET /api/bing/maps -> Bing",
-    "litescrape-openapi.yml: tagged paths GET /api/bing/search -> Bing",
-    "litescrape-openapi.yml: tagged paths GET /api/duckduckgo/maps -> Duckduckgo",
-    "litescrape-openapi.yml: tagged paths GET /api/duckduckgo/search -> Duckduckgo",
-    "litescrape-openapi.yml: tagged paths GET /api/google/ai-mode -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/ai-overview -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/contributor-reviews -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/maps -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/maps/photo-meta -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/maps/popular-times -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/maps/posts -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/reviews -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/search -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/shopping -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/google/shopping/product -> Google",
-    "litescrape-openapi.yml: tagged paths GET /api/tripadvisor/place -> Tripadvisor",
-    "litescrape-openapi.yml: tagged paths GET /api/tripadvisor/reviews -> Tripadvisor",
-    "litescrape-openapi.yml: tagged paths GET /api/tripadvisor/search -> Tripadvisor",
-    "litescrape-openapi.yml: tagged paths GET /api/yelp/reviews -> Yelp",
-    "litescrape-openapi.yml: tagged paths GET /api/yelp/search -> Yelp",
-    "litescrape-openapi.yml: tagged paths POST /zeroclick/agent/quote -> Zeroclick",
-    "litescrape-openapi.yml: declared missing tag: Apple",
-    "litescrape-openapi.yml: declared missing tag: Bing",
-    "litescrape-openapi.yml: declared missing tag: Duckduckgo",
-    "litescrape-openapi.yml: declared missing tag: Google",
-    "litescrape-openapi.yml: declared missing tag: Tripadvisor",
-    "litescrape-openapi.yml: declared missing tag: Yelp",
-    "litescrape-openapi.yml: declared missing tag: Zeroclick",
-    "tag 'Apple' spans 2 source specs (litescrape-agents-openapi.json, litescrape-openapi.yml): per-path servers applied",
-    "tag 'Bing' spans 2 source specs (litescrape-agents-openapi.json, litescrape-openapi.yml): per-path servers applied",
-    "tag 'Duckduckgo' spans 2 source specs (litescrape-agents-openapi.json, litescrape-openapi.yml): per-path servers applied",
-    "tag 'Google' spans 2 source specs (litescrape-agents-openapi.json, litescrape-openapi.yml): per-path servers applied",
-    "tag 'Tripadvisor' spans 2 source specs (litescrape-agents-openapi.json, litescrape-openapi.yml): per-path servers applied",
-    "tag 'Yelp' spans 2 source specs (litescrape-agents-openapi.json, litescrape-openapi.yml): per-path servers applied",
-    "tag 'Zeroclick' spans 2 source specs (litescrape-agents-openapi.json, litescrape-openapi.yml): per-path servers applied",
-    "apis.yml register: written (+7 apis, 8 total)"
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "_original/litescrape-openapi.yml: archived document superseded by a larger archived document",
+    "litescrape-apple-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "litescrape-bing-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "litescrape-duckduckgo-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "litescrape-google-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "litescrape-tripadvisor-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "litescrape-yelp-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "litescrape-zeroclick-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }

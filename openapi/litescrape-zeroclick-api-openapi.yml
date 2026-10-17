@@ -2,8 +2,8 @@ openapi: 3.2.0
 info:
   title: Litescrape Zeroclick API
   version: 1.0.0
+  description: Litescrape is a search results API.
   x-guidance: 'Start with the free seller advisor: POST https://agents.litescrape.com/zeroclick/agent/quote with your goal and known budget or requirements. This operation costs $0 and requires only an x402 or MPP wallet proof; it returns a guide and never executes a purchase. Without a wallet, GET https://agents.litescrape.com/zeroclick/agent/guide?goal=URL_ENCODED_TASK or POST to that guide. Other operations below are the direct API reference; their own prices and access requirements still apply. Call the operations listed in this document at https://agents.litescrape.com. Each service''s full price matrix, plans, and how to buy are at https://agents.litescrape.com/services/{slug}; each operation''s x-payment-info names the service it bills by slug (rates[].service). Slugs identify services in prices and usage reports and are never request values: when one operation serves several services, its request body schema lists the accepted values of the field that selects the service, so send one of those exactly as written. Calls here are sold on plans, not per call: an unidentified call returns 401 bearer_required with a registration recipe, never a per-call 402. Reuse your existing agent identity; register only if new (anonymous registration is one free API call; the recipe is at https://agents.litescrape.com/auth.md), buy a plan at POST https://agents.litescrape.com/plans/{planId}/purchase (its priced 402 settles with a supported payment method - x402 (Base USDC) or MPP (Tempo USDC) today - or by card), then retry with Authorization: Bearer <token>. No upstream API key is needed. Read GET https://agents.litescrape.com/manifest.json for the live services, meters, plans, and prices, and https://agents.litescrape.com/llms-full.txt for the full agent guide.'
-  description: 'Operations tagged Zeroclick across 2 of this provider''s published API definitions: litescrape-agents-openapi.json, litescrape-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: https://agents.litescrape.com
   description: Plan-based access to Litescrape's API
@@ -131,9 +131,6 @@ paths:
           description: Free seller advisor lookup
       tags:
       - Zeroclick
-    servers:
-    - url: https://agents.litescrape.com
-      description: Plan-based access to Litescrape's API
 components:
   securitySchemes:
     planAccess:
@@ -152,9 +149,6 @@ components:
 externalDocs:
   url: https://agents.litescrape.com/llms-full.txt
   description: How to authenticate, pay, and call this API; links the upstream API reference.
-x-refined-from:
-- litescrape-agents-openapi.json
-- litescrape-openapi.yml
 x-zeroclick-navigation:
   fullSpec: https://agents.litescrape.com/openapi.json
   services: https://agents.litescrape.com/services
