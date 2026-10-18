@@ -28,6 +28,15 @@ modified: '2026-10-07'
 
 tags:
 - Company
+- SERP
+- Web Scraping
+- Search
+- Google Maps
+- Reviews
+- Web Data
+- MCP
+tags_raw:
+- Company
 - SERP API
 - Web Scraping
 - Search
@@ -169,6 +178,8 @@ apis:
   humanURL: https://litescrape.com/docs/reference
   baseURL: https://api.litescrape.com
   tags:
+  - DuckDuckGo
+  tags_raw:
   - Duckduckgo
   properties:
   - type: OpenAPI
@@ -197,6 +208,8 @@ apis:
   humanURL: https://litescrape.com/docs/reference
   baseURL: https://api.litescrape.com
   tags:
+  - tripadvisor
+  tags_raw:
   - Tripadvisor
   properties:
   - type: OpenAPI
