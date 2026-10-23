@@ -181,3 +181,9 @@ x-zeroclick-navigation-footer:
   searchTemplate: https://agents.litescrape.com/openapi.json?q={text}
   operationTemplate: https://agents.litescrape.com/openapi.json?path={path}&method={method}
   firstPage: https://agents.litescrape.com/openapi.json?page=1
+x-provenance:
+  method: harvested
+  publisher: Litescrape
+  source: https://agents.litescrape.com/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
